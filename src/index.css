@@ -50,25 +50,25 @@
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
   }
-}
 
-@layer base {
   * {
     @apply border-border selection:bg-white/10 selection:text-white;
   }
+
   body {
     @apply bg-background text-foreground antialiased font-inter;
-    font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
   }
-}
 
-@layer utilities {
   .glass {
     @apply bg-white/60 dark:bg-black/60 backdrop-blur-lg border border-white/20 dark:border-white/10 shadow-lg;
   }
 
-  .neo-blur {
-    @apply backdrop-blur-2xl bg-black/40 border border-white/10;
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-xl hover:scale-[1.02];
+  }
+
+  .nav-item {
+    @apply px-4 py-2 rounded-lg transition-all duration-200 hover:bg-primary/10;
   }
 
   .feature-tag {
@@ -96,3 +96,4 @@
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out forwards;
 }
+
