@@ -2,12 +2,15 @@
 import { cn } from "@/lib/utils";
 import { Home, MapPin, Library, Lightbulb, MessageSquare, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link, useLocation } from "react-router-dom";
 
 interface SidebarProps {
   isOpen: boolean;
 }
 
 const Sidebar = ({ isOpen }: SidebarProps) => {
+  const location = useLocation();
+  
   const navigation = [
     { name: "Dashboard", icon: Home, href: "/" },
     { name: "Map View", icon: MapPin, href: "/map" },
@@ -15,6 +18,12 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
     { name: "Insights", icon: Lightbulb, href: "/insights" },
     { name: "Chat", icon: MessageSquare, href: "/chat" },
   ];
+
+  const isActivePath = (path: string) => {
+    if (path === "/" && location.pathname === "/") return true;
+    if (path !== "/" && location.pathname.startsWith(path)) return true;
+    return false;
+  };
 
   return (
     <aside
@@ -46,11 +55,15 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
             variant="ghost"
             className={cn(
               "w-full justify-start mb-1",
-              !isOpen && "justify-center"
+              !isOpen && "justify-center",
+              isActivePath(item.href) && "bg-primary/10 text-primary"
             )}
+            asChild
           >
-            <item.icon className="h-5 w-5" />
-            {isOpen && <span className="ml-2">{item.name}</span>}
+            <Link to={item.href}>
+              <item.icon className="h-5 w-5" />
+              {isOpen && <span className="ml-2">{item.name}</span>}
+            </Link>
           </Button>
         ))}
       </nav>
