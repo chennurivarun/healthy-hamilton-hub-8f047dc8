@@ -1,4 +1,5 @@
 
+import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import MainLayout from "@/components/layout/MainLayout";
 import { Activity, Users, AlertTriangle, TrendingUp } from "lucide-react";
