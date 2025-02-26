@@ -2,7 +2,13 @@
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import MainLayout from "@/components/layout/MainLayout";
-import { Activity, Users, AlertTriangle, TrendingUp } from "lucide-react";
+import { Activity, Users, AlertTriangle, TrendingUp, Info } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const Index = () => {
   const metrics = [
@@ -11,28 +17,32 @@ const Index = () => {
       value: "8.5%",
       change: "+0.3%",
       icon: Activity,
-      type: "existing"
+      type: "existing",
+      description: "Tracks diagnosed diabetes cases in Hamilton region based on healthcare records."
     },
     {
       title: "Mental Health Visits",
       value: "2,847",
       change: "+12%",
       icon: Users,
-      type: "improved"
+      type: "improved",
+      description: "Now integrates real-time data from local mental health clinics to provide up-to-date visit counts and trends."
     },
     {
       title: "Air Quality Index",
       value: "Good",
       change: "Stable",
       icon: AlertTriangle,
-      type: "existing"
+      type: "existing",
+      description: "Monitors air quality conditions across Hamilton using Environment Canada data."
     },
     {
       title: "Employment Rate",
       value: "94%",
       change: "+2.1%",
       icon: TrendingUp,
-      type: "new"
+      type: "new",
+      description: "Newly added metric tracking employment statistics in the Hamilton region, integrated with local job market data."
     },
   ];
 
@@ -40,7 +50,9 @@ const Index = () => {
     <MainLayout>
       <div className="space-y-8 pt-16">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight animate-fade-in">Welcome to Hamilton Health Hub</h2>
+          <h2 className="text-3xl font-bold tracking-tight animate-fade-in">
+            Welcome to Hamilton Health Hub
+          </h2>
           <p className="text-muted-foreground mt-2 animate-fade-in">
             Explore health metrics, resources, and community insights
           </p>
@@ -48,24 +60,38 @@ const Index = () => {
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {metrics.map((metric, index) => (
-            <Card key={metric.title} className={cn(
-              "p-6 glass card-hover animate-fade-in",
-              "relative overflow-hidden group"
-            )}
+            <Card 
+              key={metric.title} 
+              className={cn(
+                "p-6 relative overflow-hidden group",
+                "bg-white/60 backdrop-blur-lg border border-white/20 shadow-lg",
+                "hover:shadow-xl transition-all duration-300 hover:scale-[1.02]",
+                "animate-fade-in"
+              )}
               style={{
                 animationDelay: `${index * 100}ms`
               }}
             >
-              <div className="absolute top-2 right-2">
-                <span className={cn(
-                  "feature-tag",
-                  metric.type === "existing" && "feature-tag-existing",
-                  metric.type === "improved" && "feature-tag-improved",
-                  metric.type === "new" && "feature-tag-new"
-                )}>
-                  {metric.type}
-                </span>
-              </div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="absolute top-2 right-2 cursor-pointer">
+                      <span className={cn(
+                        "feature-tag flex items-center gap-1 group-hover:bg-opacity-100 transition-all",
+                        metric.type === "existing" && "bg-blue-100 text-blue-700",
+                        metric.type === "improved" && "bg-green-100 text-green-700",
+                        metric.type === "new" && "bg-purple-100 text-purple-700"
+                      )}>
+                        {metric.type}
+                        <Info className="w-3 h-3" />
+                      </span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-xs">
+                    <p>{metric.description}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               
               <div className="flex items-center gap-4">
                 <metric.icon className="h-8 w-8 text-primary" />
@@ -88,10 +114,22 @@ const Index = () => {
           ))}
         </div>
 
-        <div className="h-96 glass rounded-lg p-6 animate-fade-in" style={{ animationDelay: "400ms" }}>
-          <h3 className="text-lg font-semibold mb-4">Community Health Map</h3>
-          <div className="h-full bg-muted/30 rounded-lg flex items-center justify-center">
-            Map Preview (Coming Soon)
+        <div className={cn(
+          "h-96 relative overflow-hidden animate-fade-in",
+          "bg-white/60 backdrop-blur-lg border border-white/20 shadow-lg rounded-xl"
+        )} 
+          style={{ animationDelay: "400ms" }}
+        >
+          <div className="absolute top-2 right-2">
+            <span className="feature-tag bg-blue-100 text-blue-700">
+              existing
+            </span>
+          </div>
+          <div className="p-6">
+            <h3 className="text-lg font-semibold mb-4">Community Health Map</h3>
+            <div className="h-full bg-muted/30 rounded-lg flex items-center justify-center">
+              Map Preview (Coming Soon)
+            </div>
           </div>
         </div>
       </div>
