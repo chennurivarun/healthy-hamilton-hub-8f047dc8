@@ -79,7 +79,7 @@
     @apply bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300;
   }
 
-  .feature-tag-improved {
+  .feature-tag-improved, .feature-tag-enhanced {
     @apply bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300;
   }
 

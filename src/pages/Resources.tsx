@@ -10,6 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { features } from "@/components/layout/MainLayout";
 
 const Resources = () => {
   const resources = [
@@ -17,8 +18,7 @@ const Resources = () => {
       title: "Emergency Services",
       description: "24/7 Health Services & Crisis Lines",
       icon: Phone,
-      type: "existing",
-      tooltipContent: "Directory of emergency health services and crisis hotlines in Hamilton.",
+      feature: features.resourcesDirectory,
       items: [
         "Hamilton Health Sciences - Emergency",
         "Mental Health Crisis Line",
@@ -29,8 +29,7 @@ const Resources = () => {
       title: "Community Centers",
       description: "Local Health & Wellness Centers",
       icon: Library,
-      type: "existing",
-      tooltipContent: "Local community centers offering health and wellness programs.",
+      feature: features.resourcesDirectory,
       items: [
         "YMCA Hamilton/Burlington",
         "Hamilton Community Food Centre",
@@ -41,8 +40,7 @@ const Resources = () => {
       title: "Online Resources",
       description: "Digital Health Tools & Information",
       icon: Globe,
-      type: "improved",
-      tooltipContent: "Enhanced digital resources with personalized health recommendations.",
+      feature: features.healthInsights,
       items: [
         "Hamilton Health Portal",
         "Mental Health Resources",
@@ -53,8 +51,7 @@ const Resources = () => {
       title: "Support Groups",
       description: "Community Support Networks",
       icon: MessageSquare,
-      type: "new",
-      tooltipContent: "Newly added support networks to connect with others facing similar health challenges.",
+      feature: features.aiHealthAssistant,
       items: [
         "Diabetes Support Group",
         "Mental Health Alliance",
@@ -93,16 +90,16 @@ const Resources = () => {
                     <TooltipTrigger asChild>
                       <span className={cn(
                         "feature-tag flex items-center gap-1",
-                        resource.type === "existing" && "feature-tag-existing",
-                        resource.type === "improved" && "feature-tag-improved",
-                        resource.type === "new" && "feature-tag-new"
+                        resource.feature.type === "existing" && "feature-tag-existing",
+                        resource.feature.type === "enhanced" && "feature-tag-improved",
+                        resource.feature.type === "new" && "feature-tag-new"
                       )}>
-                        {resource.type}
+                        {resource.feature.type}
                         <Info className="w-3 h-3" />
                       </span>
                     </TooltipTrigger>
                     <TooltipContent side="left" className="max-w-xs">
-                      <p>{resource.tooltipContent}</p>
+                      <p>{resource.feature.description}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>

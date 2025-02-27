@@ -10,6 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { features } from "@/components/layout/MainLayout";
 
 const Map = () => {
   return (
@@ -34,12 +35,12 @@ const Map = () => {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="feature-tag feature-tag-improved flex items-center gap-1">
-                      improved
+                      {features.communityHealthMap.type}
                       <Info className="w-3 h-3" />
                     </span>
                   </TooltipTrigger>
                   <TooltipContent side="left" className="max-w-xs">
-                    <p>Interactive map with enhanced visualization and AI-driven health data overlays.</p>
+                    <p>{features.communityHealthMap.description}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -70,12 +71,12 @@ const Map = () => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <span className="feature-tag feature-tag-existing flex items-center gap-1">
-                        existing
+                        {features.dashboardOverview.type}
                         <Info className="w-3 h-3" />
                       </span>
                     </TooltipTrigger>
                     <TooltipContent side="left" className="max-w-xs">
-                      <p>Standard map legend for identifying health score regions.</p>
+                      <p>{features.dashboardOverview.description}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -106,12 +107,12 @@ const Map = () => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <span className="feature-tag feature-tag-new flex items-center gap-1">
-                        new
+                        {features.predictiveAnalytics.type}
                         <Info className="w-3 h-3" />
                       </span>
                     </TooltipTrigger>
                     <TooltipContent side="left" className="max-w-xs">
-                      <p>New advanced filtering system for customized map data visualization.</p>
+                      <p>{features.predictiveAnalytics.description}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>

@@ -9,6 +9,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { features } from "@/components/layout/MainLayout";
 
 const Index = () => {
   const metrics = [
@@ -17,32 +18,28 @@ const Index = () => {
       value: "8.5%",
       change: "+0.3%",
       icon: Activity,
-      type: "existing",
-      description: "Tracks diagnosed diabetes cases in Hamilton region based on healthcare records."
+      feature: features.monthlyHealthIndicators,
     },
     {
       title: "Mental Health Visits",
       value: "2,847",
       change: "+12%",
       icon: Users,
-      type: "improved",
-      description: "Now integrates real-time data from local mental health clinics to provide up-to-date visit counts and trends."
+      feature: features.healthInsights,
     },
     {
       title: "Air Quality Index",
       value: "Good",
       change: "Stable",
       icon: AlertTriangle,
-      type: "new",
-      description: "Newly added metric monitoring air quality conditions across Hamilton using Environment Canada data."
+      feature: features.monthlyHealthIndicators,
     },
     {
       title: "Employment Rate",
       value: "94%",
       change: "+2.1%",
       icon: TrendingUp,
-      type: "new",
-      description: "Newly added metric tracking employment statistics in the Hamilton region, integrated with local job market data."
+      feature: features.employmentCenters,
     },
   ];
 
@@ -77,17 +74,17 @@ const Index = () => {
                     <div className="absolute top-2 right-2 cursor-pointer">
                       <span className={cn(
                         "feature-tag flex items-center gap-1 group-hover:bg-opacity-100 transition-all",
-                        metric.type === "existing" && "feature-tag-existing",
-                        metric.type === "improved" && "feature-tag-improved",
-                        metric.type === "new" && "feature-tag-new"
+                        metric.feature.type === "existing" && "feature-tag-existing",
+                        metric.feature.type === "enhanced" && "feature-tag-improved",
+                        metric.feature.type === "new" && "feature-tag-new"
                       )}>
-                        {metric.type}
+                        {metric.feature.type}
                         <Info className="w-3 h-3" />
                       </span>
                     </div>
                   </TooltipTrigger>
                   <TooltipContent side="top" className="max-w-xs">
-                    <p>{metric.description}</p>
+                    <p>{metric.feature.description}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -124,12 +121,12 @@ const Index = () => {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span className="feature-tag feature-tag-improved flex items-center gap-1">
-                    improved
+                    {features.communityHealthMap.type}
                     <Info className="w-3 h-3" />
                   </span>
                 </TooltipTrigger>
                 <TooltipContent side="left" className="max-w-xs">
-                  <p>Enhanced community health map with interactive elements and AI-driven data overlays.</p>
+                  <p>{features.communityHealthMap.description}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

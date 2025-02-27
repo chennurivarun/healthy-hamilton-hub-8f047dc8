@@ -9,13 +9,65 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { MenuBar } from "@/components/ui/bottom-menu";
-import { Home, MapPin, Library, Lightbulb, MessageSquare, Sun, Moon } from "lucide-react";
-import { Info } from "lucide-react";
+import { Home, MapPin, Library, Lightbulb, MessageSquare, Sun, Moon, Info } from "lucide-react";
 import { Card } from "@/components/ui/card";
 
 interface MainLayoutProps {
   children: React.ReactNode;
 }
+
+export const features = {
+  dashboardOverview: {
+    name: "Dashboard Overview",
+    type: "existing",
+    description: "Provides a high-level snapshot of key health metrics, enabling users to quickly assess overall community well-being."
+  },
+  communityHealthMap: {
+    name: "Community Health Map",
+    type: "enhanced",
+    description: "Displays real-time, AI-driven overlays of local health data, helping users spot trends and emerging concerns in specific neighborhoods."
+  },
+  resourcesDirectory: {
+    name: "Resources Directory",
+    type: "existing",
+    description: "Offers quick access to critical resources like emergency services, community centers, and online portals, saving time for users seeking help."
+  },
+  employmentCenters: {
+    name: "Employment Centers",
+    type: "new",
+    description: "Highlights local employment centers, including job listings and transit information, providing economic and social support for the community."
+  },
+  healthInsights: {
+    name: "Health Insights",
+    type: "enhanced",
+    description: "Incorporates AI analytics to show trends, predictive modeling, and correlations, enabling evidence-based decision-making."
+  },
+  monthlyHealthIndicators: {
+    name: "Monthly Health Indicators",
+    type: "existing",
+    description: "Tracks metrics such as diabetes prevalence, mental health visits, and air quality, giving users a consistent reference point over time."
+  },
+  predictiveAnalytics: {
+    name: "Predictive Analytics",
+    type: "new",
+    description: "Utilizes machine learning to forecast future health risks and resource demands, empowering proactive intervention strategies."
+  },
+  aiHealthAssistant: {
+    name: "AI Health Assistant (Chat)",
+    type: "enhanced",
+    description: "Offers a conversational interface for scheduling appointments, answering health questions, and providing personalized recommendations."
+  },
+  darkModeToggle: {
+    name: "Dark Mode Toggle",
+    type: "new",
+    description: "Allows users to switch to a low-light interface, reducing eye strain and enhancing readability in dark environments."
+  },
+  glassmorphicUIPanels: {
+    name: "Glassmorphic UI Panels",
+    type: "new",
+    description: "Adds a modern, translucent design aesthetic that emphasizes content while maintaining a clean, minimalist look."
+  }
+};
 
 const MainLayout = ({ children }: MainLayoutProps) => {
   const location = useLocation();
@@ -31,21 +83,6 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
     document.documentElement.classList.toggle("dark");
-  };
-
-  const features = {
-    navigation: {
-      type: "improved",
-      description: "Bottom navigation bar with minimalist icons for improved mobile experience",
-    },
-    layout: {
-      type: "improved",
-      description: "Responsive layout with glassmorphism effects and black & white aesthetic",
-    },
-    darkMode: {
-      type: "new",
-      description: "Modern dark mode implementation with grayscale palette for reduced eye strain and better contrast",
-    },
   };
 
   const menuItems = [
@@ -91,20 +128,26 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     }
   };
 
+  // Feature labels to show in the top-right corner
+  const featuresToShowInCorner = [
+    features.darkModeToggle,
+    features.glassmorphicUIPanels,
+  ];
+
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-background transition-colors duration-300 pb-32">
         <div className="fixed top-4 right-4 z-50 flex gap-2">
-          {Object.entries(features).map(([key, feature]) => (
-            <Tooltip key={key}>
+          {featuresToShowInCorner.map((feature) => (
+            <Tooltip key={feature.name}>
               <TooltipTrigger asChild>
                 <div className={cn(
                   "feature-tag flex items-center gap-1 group",
                   feature.type === "existing" && "feature-tag-existing",
-                  feature.type === "improved" && "feature-tag-improved",
+                  feature.type === "enhanced" && "feature-tag-improved",
                   feature.type === "new" && "feature-tag-new"
                 )}>
-                  {key}
+                  {feature.name}
                   <Info className="w-3 h-3" />
                 </div>
               </TooltipTrigger>

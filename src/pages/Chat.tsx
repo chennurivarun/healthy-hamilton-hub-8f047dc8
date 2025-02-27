@@ -11,6 +11,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { features } from "@/components/layout/MainLayout";
 
 const Chat = () => {
   const [messages, setMessages] = useState([
@@ -36,11 +37,6 @@ const Chat = () => {
     setInputValue("");
   };
 
-  const chatFeature = {
-    type: "new",
-    description: "AI-powered health assistant capable of answering questions, providing recommendations, and accessing local health resources."
-  };
-
   return (
     <MainLayout>
       <div className="space-y-8 pt-16">
@@ -61,13 +57,13 @@ const Chat = () => {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span className="feature-tag feature-tag-new flex items-center gap-1">
-                    {chatFeature.type}
+                  <span className="feature-tag feature-tag-enhanced flex items-center gap-1">
+                    {features.aiHealthAssistant.type}
                     <Info className="w-3 h-3" />
                   </span>
                 </TooltipTrigger>
                 <TooltipContent side="left" className="max-w-xs">
-                  <p>{chatFeature.description}</p>
+                  <p>{features.aiHealthAssistant.description}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

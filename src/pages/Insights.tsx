@@ -10,6 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { features } from "@/components/layout/MainLayout";
 
 const Insights = () => {
   const monthlyData = [
@@ -27,19 +28,6 @@ const Insights = () => {
     { name: '2021', value: 58 },
     { name: '2022', value: 65 },
     { name: '2023', value: 72 },
-  ];
-
-  const chartFeatures = [
-    {
-      title: "Monthly Health Indicators",
-      type: "improved",
-      description: "Enhanced chart showing correlations between different health metrics with AI-powered trend analysis."
-    },
-    {
-      title: "Community Health Score Trend",
-      type: "new",
-      description: "New predictive analytics chart showing community health score trends with AI forecasting."
-    }
   ];
 
   return (
@@ -64,17 +52,17 @@ const Insights = () => {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="feature-tag feature-tag-improved flex items-center gap-1">
-                      {chartFeatures[0].type}
+                      {features.monthlyHealthIndicators.type}
                       <Info className="w-3 h-3" />
                     </span>
                   </TooltipTrigger>
                   <TooltipContent side="left" className="max-w-xs">
-                    <p>{chartFeatures[0].description}</p>
+                    <p>{features.monthlyHealthIndicators.description}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
-            <h3 className="font-semibold mb-4">{chartFeatures[0].title}</h3>
+            <h3 className="font-semibold mb-4">Monthly Health Indicators</h3>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={monthlyData}>
@@ -102,17 +90,17 @@ const Insights = () => {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span className="feature-tag feature-tag-new flex items-center gap-1">
-                      {chartFeatures[1].type}
+                      {features.predictiveAnalytics.type}
                       <Info className="w-3 h-3" />
                     </span>
                   </TooltipTrigger>
                   <TooltipContent side="left" className="max-w-xs">
-                    <p>{chartFeatures[1].description}</p>
+                    <p>{features.predictiveAnalytics.description}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
-            <h3 className="font-semibold mb-4">{chartFeatures[1].title}</h3>
+            <h3 className="font-semibold mb-4">Community Health Score Trend</h3>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={trendData}>
