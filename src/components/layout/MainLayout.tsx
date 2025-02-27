@@ -1,13 +1,15 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import BottomNav from "./BottomNav";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { MenuBar } from "@/components/ui/bottom-menu";
+import { Home, MapPin, Library, Lightbulb, MessageSquare, Sun, Moon } from "lucide-react";
 import { Info } from "lucide-react";
 
 interface MainLayoutProps {
@@ -15,6 +17,21 @@ interface MainLayoutProps {
 }
 
 const MainLayout = ({ children }: MainLayoutProps) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains("dark");
+    setTheme(isDark ? "dark" : "light");
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    document.documentElement.classList.toggle("dark");
+  };
+
   const features = {
     navigation: {
       type: "improved",
@@ -28,6 +45,49 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       type: "new",
       description: "Modern dark mode implementation with grayscale palette for reduced eye strain and better contrast",
     },
+  };
+
+  const menuItems = [
+    {
+      icon: (props) => <Home {...props} />,
+      label: "Dashboard",
+      href: "/"
+    },
+    {
+      icon: (props) => <MapPin {...props} />,
+      label: "Map View",
+      href: "/map"
+    },
+    {
+      icon: (props) => <Library {...props} />,
+      label: "Resources",
+      href: "/resources"
+    },
+    {
+      icon: (props) => <Lightbulb {...props} />,
+      label: "Insights",
+      href: "/insights"
+    },
+    {
+      icon: (props) => <MessageSquare {...props} />,
+      label: "Chat",
+      href: "/chat"
+    },
+    {
+      icon: (props) => theme === "light" ? <Moon {...props} /> : <Sun {...props} />,
+      label: "Theme"
+    }
+  ];
+
+  const handleMenuItemClick = (index: number) => {
+    if (index === menuItems.length - 1) {
+      toggleTheme();
+    } else {
+      const item = menuItems[index];
+      if (item.href) {
+        navigate(item.href);
+      }
+    }
   };
 
   return (
@@ -56,7 +116,10 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         <main className="container mx-auto px-4 pt-4">
           {children}
         </main>
-        <BottomNav />
+
+        <div className="menu-bar-container">
+          <MenuBar items={menuItems} onItemClick={handleMenuItemClick} />
+        </div>
       </div>
     </TooltipProvider>
   );
