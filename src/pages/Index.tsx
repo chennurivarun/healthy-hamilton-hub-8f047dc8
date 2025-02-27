@@ -33,8 +33,8 @@ const Index = () => {
       value: "Good",
       change: "Stable",
       icon: AlertTriangle,
-      type: "existing",
-      description: "Monitors air quality conditions across Hamilton using Environment Canada data."
+      type: "new",
+      description: "Newly added metric monitoring air quality conditions across Hamilton using Environment Canada data."
     },
     {
       title: "Employment Rate",
@@ -51,7 +51,7 @@ const Index = () => {
       <div className="space-y-8 pt-16">
         <div>
           <h2 className="text-3xl font-bold tracking-tight animate-fade-in">
-            Welcome to Hamilton Health Hub
+            Hamilton Health Hub
           </h2>
           <p className="text-muted-foreground mt-2 animate-fade-in">
             Explore health metrics, resources, and community insights
@@ -64,8 +64,7 @@ const Index = () => {
               key={metric.title} 
               className={cn(
                 "p-6 relative overflow-hidden group",
-                "bg-white/60 backdrop-blur-lg border border-white/20 shadow-lg",
-                "hover:shadow-xl transition-all duration-300 hover:scale-[1.02]",
+                "glass hover:shadow-xl transition-all duration-300 hover:scale-[1.02]",
                 "animate-fade-in"
               )}
               style={{
@@ -78,9 +77,9 @@ const Index = () => {
                     <div className="absolute top-2 right-2 cursor-pointer">
                       <span className={cn(
                         "feature-tag flex items-center gap-1 group-hover:bg-opacity-100 transition-all",
-                        metric.type === "existing" && "bg-blue-100 text-blue-700",
-                        metric.type === "improved" && "bg-green-100 text-green-700",
-                        metric.type === "new" && "bg-purple-100 text-purple-700"
+                        metric.type === "existing" && "feature-tag-existing",
+                        metric.type === "improved" && "feature-tag-improved",
+                        metric.type === "new" && "feature-tag-new"
                       )}>
                         {metric.type}
                         <Info className="w-3 h-3" />
@@ -103,7 +102,7 @@ const Index = () => {
                     <h3 className="text-2xl font-bold">{metric.value}</h3>
                     <span className={cn(
                       "text-sm",
-                      metric.change.startsWith("+") ? "text-green-600" : "text-muted-foreground"
+                      metric.change.startsWith("+") ? "text-accent" : "text-muted-foreground"
                     )}>
                       {metric.change}
                     </span>
@@ -116,14 +115,24 @@ const Index = () => {
 
         <div className={cn(
           "h-96 relative overflow-hidden animate-fade-in",
-          "bg-white/60 backdrop-blur-lg border border-white/20 shadow-lg rounded-xl"
+          "glass rounded-xl"
         )} 
           style={{ animationDelay: "400ms" }}
         >
           <div className="absolute top-2 right-2">
-            <span className="feature-tag bg-blue-100 text-blue-700">
-              existing
-            </span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="feature-tag feature-tag-improved flex items-center gap-1">
+                    improved
+                    <Info className="w-3 h-3" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="left" className="max-w-xs">
+                  <p>Enhanced community health map with interactive elements and AI-driven data overlays.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
           <div className="p-6">
             <h3 className="text-lg font-semibold mb-4">Community Health Map</h3>

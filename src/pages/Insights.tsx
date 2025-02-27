@@ -1,8 +1,15 @@
 
 import { Card } from "@/components/ui/card";
 import MainLayout from "@/components/layout/MainLayout";
-import { BarChart, LineChart, AreaChart, ComposedChart, Bar, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, LineChart, AreaChart, ComposedChart, Bar, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
 import { cn } from "@/lib/utils";
+import { Info } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const Insights = () => {
   const monthlyData = [
@@ -22,6 +29,19 @@ const Insights = () => {
     { name: '2023', value: 72 },
   ];
 
+  const chartFeatures = [
+    {
+      title: "Monthly Health Indicators",
+      type: "improved",
+      description: "Enhanced chart showing correlations between different health metrics with AI-powered trend analysis."
+    },
+    {
+      title: "Community Health Score Trend",
+      type: "new",
+      description: "New predictive analytics chart showing community health score trends with AI forecasting."
+    }
+  ];
+
   return (
     <MainLayout>
       <div className="space-y-8 pt-16">
@@ -36,39 +56,73 @@ const Insights = () => {
 
         <div className="grid gap-6 md:grid-cols-2">
           <Card className={cn(
-            "p-6 animate-fade-in",
-            "bg-white/60 backdrop-blur-lg border border-white/20 shadow-lg"
+            "p-6 animate-fade-in relative",
+            "glass"
           )}>
-            <h3 className="font-semibold mb-4">Monthly Health Indicators</h3>
+            <div className="absolute top-2 right-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="feature-tag feature-tag-improved flex items-center gap-1">
+                      {chartFeatures[0].type}
+                      <Info className="w-3 h-3" />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="left" className="max-w-xs">
+                    <p>{chartFeatures[0].description}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <h3 className="font-semibold mb-4">{chartFeatures[0].title}</h3>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={monthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#555" strokeOpacity={0.2} />
+                  <XAxis dataKey="month" stroke="currentColor" />
+                  <YAxis stroke="currentColor" />
+                  <RechartsTooltip 
+                    contentStyle={{ backgroundColor: "rgba(10, 10, 10, 0.8)", border: "none", borderRadius: "8px", color: "#fff" }}
+                  />
                   <Legend />
-                  <Line type="monotone" dataKey="diabetes" stroke="#8884d8" name="Diabetes Cases" />
-                  <Line type="monotone" dataKey="mental" stroke="#82ca9d" name="Mental Health Visits" />
-                  <Line type="monotone" dataKey="air" stroke="#ffc658" name="Air Quality Index" />
+                  <Line type="monotone" dataKey="diabetes" stroke="#888" strokeWidth={2} dot={{ fill: "#888" }} name="Diabetes Cases" />
+                  <Line type="monotone" dataKey="mental" stroke="#555" strokeWidth={2} dot={{ fill: "#555" }} name="Mental Health Visits" />
+                  <Line type="monotone" dataKey="air" stroke="#222" strokeWidth={2} dot={{ fill: "#222" }} name="Air Quality Index" />
                 </LineChart>
               </ResponsiveContainer>
             </div>
           </Card>
 
           <Card className={cn(
-            "p-6 animate-fade-in",
-            "bg-white/60 backdrop-blur-lg border border-white/20 shadow-lg"
+            "p-6 animate-fade-in relative",
+            "glass"
           )}>
-            <h3 className="font-semibold mb-4">Community Health Score Trend</h3>
+            <div className="absolute top-2 right-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="feature-tag feature-tag-new flex items-center gap-1">
+                      {chartFeatures[1].type}
+                      <Info className="w-3 h-3" />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="left" className="max-w-xs">
+                    <p>{chartFeatures[1].description}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <h3 className="font-semibold mb-4">{chartFeatures[1].title}</h3>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={trendData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Area type="monotone" dataKey="value" stroke="#8884d8" fill="#8884d8" name="Health Score" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#555" strokeOpacity={0.2} />
+                  <XAxis dataKey="name" stroke="currentColor" />
+                  <YAxis stroke="currentColor" />
+                  <RechartsTooltip 
+                    contentStyle={{ backgroundColor: "rgba(10, 10, 10, 0.8)", border: "none", borderRadius: "8px", color: "#fff" }}
+                  />
+                  <Area type="monotone" dataKey="value" stroke="#555" fill="#555" fillOpacity={0.3} name="Health Score" />
                 </AreaChart>
               </ResponsiveContainer>
             </div>

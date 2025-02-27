@@ -1,9 +1,15 @@
 
 import { Card } from "@/components/ui/card";
 import MainLayout from "@/components/layout/MainLayout";
-import { MapPin, Layers, Filter } from "lucide-react";
+import { MapPin, Layers, Filter, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const Map = () => {
   return (
@@ -21,9 +27,24 @@ const Map = () => {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_300px]">
           <Card className={cn(
             "relative h-[600px] animate-fade-in",
-            "bg-white/60 backdrop-blur-lg border border-white/20 shadow-lg"
+            "glass"
           )}>
-            <div className="absolute top-4 right-4 z-10 flex gap-2">
+            <div className="absolute top-2 right-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className="feature-tag feature-tag-improved flex items-center gap-1">
+                      improved
+                      <Info className="w-3 h-3" />
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="left" className="max-w-xs">
+                    <p>Interactive map with enhanced visualization and AI-driven health data overlays.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <div className="absolute top-4 right-12 z-10 flex gap-2">
               <Button variant="ghost" size="icon">
                 <Layers className="h-4 w-4" />
               </Button>
@@ -41,30 +62,60 @@ const Map = () => {
 
           <div className="space-y-4">
             <Card className={cn(
-              "p-6 animate-fade-in",
-              "bg-white/60 backdrop-blur-lg border border-white/20 shadow-lg"
+              "p-6 animate-fade-in relative",
+              "glass"
             )}>
+              <div className="absolute top-2 right-2">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="feature-tag feature-tag-existing flex items-center gap-1">
+                        existing
+                        <Info className="w-3 h-3" />
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent side="left" className="max-w-xs">
+                      <p>Standard map legend for identifying health score regions.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <h3 className="font-semibold mb-4">Legend</h3>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-green-500" />
+                  <div className="w-4 h-4 rounded bg-gray-300 dark:bg-gray-600" />
                   <span>High Health Score</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-yellow-500" />
+                  <div className="w-4 h-4 rounded bg-gray-500 dark:bg-gray-400" />
                   <span>Medium Health Score</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded bg-red-500" />
+                  <div className="w-4 h-4 rounded bg-gray-700 dark:bg-gray-200" />
                   <span>Low Health Score</span>
                 </div>
               </div>
             </Card>
 
             <Card className={cn(
-              "p-6 animate-fade-in",
-              "bg-white/60 backdrop-blur-lg border border-white/20 shadow-lg"
+              "p-6 animate-fade-in relative",
+              "glass"
             )}>
+              <div className="absolute top-2 right-2">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="feature-tag feature-tag-new flex items-center gap-1">
+                        new
+                        <Info className="w-3 h-3" />
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent side="left" className="max-w-xs">
+                      <p>New advanced filtering system for customized map data visualization.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <h3 className="font-semibold mb-4">Filters</h3>
               <div className="space-y-4">
                 <div className="space-y-2">

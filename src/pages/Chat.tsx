@@ -3,8 +3,14 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
-import { Send } from "lucide-react";
+import { Send, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const Chat = () => {
   const [messages, setMessages] = useState([
@@ -30,6 +36,11 @@ const Chat = () => {
     setInputValue("");
   };
 
+  const chatFeature = {
+    type: "new",
+    description: "AI-powered health assistant capable of answering questions, providing recommendations, and accessing local health resources."
+  };
+
   return (
     <MainLayout>
       <div className="space-y-8 pt-16">
@@ -43,9 +54,24 @@ const Chat = () => {
         </div>
 
         <Card className={cn(
-          "h-[600px] flex flex-col animate-fade-in",
-          "bg-white/60 backdrop-blur-lg border border-white/20 shadow-lg"
+          "h-[600px] flex flex-col animate-fade-in relative",
+          "glass"
         )}>
+          <div className="absolute top-2 right-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="feature-tag feature-tag-new flex items-center gap-1">
+                    {chatFeature.type}
+                    <Info className="w-3 h-3" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="left" className="max-w-xs">
+                  <p>{chatFeature.description}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           <div className="flex-1 p-4 overflow-y-auto space-y-4">
             {messages.map((message, index) => (
               <div

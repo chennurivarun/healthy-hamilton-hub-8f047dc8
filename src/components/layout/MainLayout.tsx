@@ -1,48 +1,44 @@
 
 import { useState } from "react";
-import Navbar from "./Navbar";
-import Sidebar from "./Sidebar";
 import { cn } from "@/lib/utils";
-import { Card } from "@/components/ui/card";
-import { Info } from "lucide-react";
+import BottomNav from "./BottomNav";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Info } from "lucide-react";
 
 interface MainLayoutProps {
   children: React.ReactNode;
 }
 
 const MainLayout = ({ children }: MainLayoutProps) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
   const features = {
     navigation: {
       type: "improved",
-      description: "Enhanced navigation system with collapsible sidebar and modern animations for improved user experience",
+      description: "Bottom navigation bar with minimalist icons for improved mobile experience",
     },
     layout: {
       type: "improved",
-      description: "Responsive layout with glassmorphism effects and dark mode optimization for better visibility",
+      description: "Responsive layout with glassmorphism effects and black & white aesthetic",
     },
     darkMode: {
       type: "new",
-      description: "Modern dark mode implementation with carefully selected color palette for reduced eye strain and better contrast",
+      description: "Modern dark mode implementation with grayscale palette for reduced eye strain and better contrast",
     },
   };
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-background transition-colors duration-300">
+      <div className="min-h-screen bg-background transition-colors duration-300 pb-24">
         <div className="fixed top-4 right-4 z-50 flex gap-2">
           {Object.entries(features).map(([key, feature]) => (
             <Tooltip key={key}>
               <TooltipTrigger asChild>
                 <div className={cn(
-                  "feature-tag cursor-help flex items-center gap-1 group",
+                  "feature-tag flex items-center gap-1 group",
                   feature.type === "existing" && "feature-tag-existing",
                   feature.type === "improved" && "feature-tag-improved",
                   feature.type === "new" && "feature-tag-new"
@@ -57,20 +53,13 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             </Tooltip>
           ))}
         </div>
-        <Navbar onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)} />
-        <div className="flex h-[calc(100vh-4rem)]">
-          <Sidebar isOpen={isSidebarOpen} />
-          <main className={cn(
-            "flex-1 p-6 transition-all duration-300 overflow-auto",
-            isSidebarOpen ? "md:ml-64" : "md:ml-20"
-          )}>
-            {children}
-          </main>
-        </div>
+        <main className="container mx-auto px-4 pt-4">
+          {children}
+        </main>
+        <BottomNav />
       </div>
     </TooltipProvider>
   );
 };
 
 export default MainLayout;
-
