@@ -11,6 +11,7 @@ import {
 import { MenuBar } from "@/components/ui/bottom-menu";
 import { Home, MapPin, Library, Lightbulb, MessageSquare, Sun, Moon } from "lucide-react";
 import { Info } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -92,7 +93,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-background transition-colors duration-300 pb-24">
+      <div className="min-h-screen bg-background transition-colors duration-300 pb-32">
         <div className="fixed top-4 right-4 z-50 flex gap-2">
           {Object.entries(features).map(([key, feature]) => (
             <Tooltip key={key}>
@@ -118,7 +119,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         </main>
 
         <div className="menu-bar-container">
-          <MenuBar items={menuItems} onItemClick={handleMenuItemClick} />
+          <Card className="nav-card p-2 border-0">
+            <MenuBar items={menuItems} onItemClick={handleMenuItemClick} />
+          </Card>
         </div>
       </div>
     </TooltipProvider>

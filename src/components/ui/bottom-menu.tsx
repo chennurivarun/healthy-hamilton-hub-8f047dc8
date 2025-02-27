@@ -58,23 +58,23 @@ export function MenuBar({ items, className, onItemClick, ...props }: MenuBarProp
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 5 }}
             transition={springConfig}
-            className="absolute left-0 right-0 -top-[31px] pointer-events-none z-50"
+            className="absolute left-0 right-0 -top-[40px] pointer-events-none z-50"
           >
             <motion.div
               ref={tooltipRef}
               className={cn(
-                "h-7 px-3 rounded-lg inline-flex justify-center items-center overflow-hidden",
+                "h-9 px-4 rounded-xl inline-flex justify-center items-center overflow-hidden",
                 "bg-background/95 backdrop-blur",
                 "border border-border/50",
-                "shadow-[0_0_0_1px_rgba(0,0,0,0.08)]",
-                "dark:border-border/50 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08)]"
+                "shadow-[0_2px_10px_rgba(0,0,0,0.1)]",
+                "dark:border-border/50 dark:shadow-[0_2px_10px_rgba(0,0,0,0.2)]"
               )}
               initial={{ x: tooltipPosition.left }}
               animate={{ x: tooltipPosition.left }}
               transition={springConfig}
               style={{ width: "auto" }}
             >
-              <p className="text-[13px] font-medium leading-tight whitespace-nowrap">
+              <p className="text-sm font-medium leading-tight whitespace-nowrap">
                 {items[activeIndex].label}
               </p>
             </motion.div>
@@ -85,23 +85,26 @@ export function MenuBar({ items, className, onItemClick, ...props }: MenuBarProp
       <div 
         ref={menuRef}
         className={cn(
-          "h-10 px-1.5 inline-flex justify-center items-center gap-[3px] overflow-hidden z-10",
-          "rounded-full bg-background/95 backdrop-blur",
+          "h-16 px-3 inline-flex justify-center items-center gap-1.5 overflow-hidden z-10",
+          "rounded-xl bg-background/95 backdrop-blur",
           "border border-border/50",
-          "shadow-[0_0_0_1px_rgba(0,0,0,0.08),0_8px_16px_-4px_rgba(0,0,0,0.1)]",
-          "dark:border-border/50 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_8px_16px_-4px_rgba(0,0,0,0.2)]"
+          "shadow-[0_0_0_1px_rgba(0,0,0,0.03),0_2px_12px_rgba(0,0,0,0.08)]",
+          "dark:border-border/40 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.05),0_2px_12px_rgba(0,0,0,0.2)]"
         )}
       >
         {items.map((item, index) => (
           <button 
             key={index}
-            className="w-8 h-8 px-3 py-1 rounded-full flex justify-center items-center gap-2 hover:bg-muted/80 transition-colors"
+            className={cn(
+              "w-12 h-12 rounded-lg flex flex-col justify-center items-center gap-1",
+              "hover:bg-muted/80 active:bg-muted transition-colors"
+            )}
             onMouseEnter={() => setActiveIndex(index)}
             onMouseLeave={() => setActiveIndex(null)}
             onClick={() => handleItemClick(index)}
           >
             <div className="flex justify-center items-center">
-              <div className="w-[18px] h-[18px] flex justify-center items-center overflow-hidden">
+              <div className="w-5 h-5 flex justify-center items-center overflow-hidden">
                 <item.icon className="w-full h-full" />
               </div>
             </div>
