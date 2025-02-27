@@ -59,7 +59,7 @@ const Chat = () => {
                 <TooltipTrigger asChild>
                   <span className="feature-tag feature-tag-enhanced flex items-center gap-1">
                     {features.aiHealthAssistant.type}
-                    <Info className="w-3 h-3" />
+                    <Info className="w-3 h-3 info-icon" />
                   </span>
                 </TooltipTrigger>
                 <TooltipContent side="left" className="max-w-xs">

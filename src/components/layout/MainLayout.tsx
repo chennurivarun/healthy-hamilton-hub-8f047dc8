@@ -66,6 +66,11 @@ export const features = {
     name: "Glassmorphic UI Panels",
     type: "new",
     description: "Adds a modern, translucent design aesthetic that emphasizes content while maintaining a clean, minimalist look."
+  },
+  globalSearch: {
+    name: "Global Search",
+    type: "new",
+    description: "Provides a unified search interface to quickly find health resources, metrics, and information across the entire platform."
   }
 };
 
@@ -132,6 +137,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const featuresToShowInCorner = [
     features.darkModeToggle,
     features.glassmorphicUIPanels,
+    features.globalSearch,
   ];
 
   return (
@@ -148,7 +154,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                   feature.type === "new" && "feature-tag-new"
                 )}>
                   {feature.name}
-                  <Info className="w-3 h-3" />
+                  <Info className="w-3 h-3 info-icon" />
                 </div>
               </TooltipTrigger>
               <TooltipContent side="left" className="max-w-xs">

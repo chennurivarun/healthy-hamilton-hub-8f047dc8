@@ -27,6 +27,11 @@
     --input: 0 0% 89.8%;
     --ring: 0 0% 15%;
     --radius: 0.75rem;
+    --tooltip-bg: 0 0% 98%;
+    --tooltip-fg: 0 0% 9%;
+    --tooltip-border: 0 0% 85%;
+    --purple-primary: 252 89% 75%;
+    --purple-secondary: 264 55% 54%;
   }
 
   .dark {
@@ -49,6 +54,9 @@
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
     --ring: 0 0% 83.9%;
+    --tooltip-bg: 252 89% 18%;
+    --tooltip-fg: 0 0% 98%;
+    --tooltip-border: 264 55% 30%;
   }
 
   * {
@@ -76,15 +84,15 @@
   }
 
   .feature-tag-existing {
-    @apply bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300;
+    @apply bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700;
   }
 
   .feature-tag-improved, .feature-tag-enhanced {
-    @apply bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300;
+    @apply bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600;
   }
 
   .feature-tag-new {
-    @apply bg-gray-300 text-gray-700 dark:bg-gray-600 dark:text-gray-200;
+    @apply bg-gray-300 text-gray-700 dark:bg-gray-600 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-500;
   }
   
   .nav-card {
@@ -94,6 +102,10 @@
   
   .dark .nav-card {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  }
+
+  .search-icon {
+    @apply text-white bg-purple-500 hover:bg-purple-600 dark:bg-purple-700 dark:hover:bg-purple-800 rounded-full p-3 shadow-lg transition-all duration-300 cursor-pointer;
   }
 }
 
@@ -173,6 +185,21 @@
   animation: fadeIn 0.3s ease-in-out, slideIn 0.3s ease-in-out;
 }
 
+/* Enhanced tooltip styles */
+.feature-tooltip {
+  @apply z-50 px-4 py-3 rounded-lg shadow-lg border;
+  background-color: hsl(var(--tooltip-bg));
+  color: hsl(var(--tooltip-fg));
+  border-color: hsl(var(--tooltip-border));
+  max-width: 320px;
+  font-size: 0.9rem;
+  backdrop-filter: blur(8px);
+}
+
+.info-icon {
+  @apply text-purple-500 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors duration-200;
+}
+
 /* Responsive styles for bottom menu */
 .menu-bar-container {
   @apply fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 flex justify-center w-auto;
@@ -187,5 +214,19 @@
 @media (min-width: 768px) {
   .menu-bar-container {
     @apply w-auto;
+  }
+}
+
+/* Global search button */
+.global-search-button {
+  @apply fixed bottom-24 right-6 z-40 flex items-center justify-center;
+  @apply bg-purple-500 text-white p-3 rounded-full shadow-lg;
+  @apply hover:bg-purple-600 transition-all duration-300;
+  @apply dark:bg-purple-700 dark:hover:bg-purple-800;
+}
+
+@media (max-width: 640px) {
+  .global-search-button {
+    @apply bottom-20 right-4;
   }
 }
