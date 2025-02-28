@@ -1,4 +1,3 @@
-
 import { Menu, Sun, Moon, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -57,7 +56,7 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
         <div className="flex items-center justify-between h-full px-6">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={onMenuClick}>
-              <Menu className="h-6 w-6" />
+              <Menu className="h-6 w-6 text-primary" />
             </Button>
             <h1 className="text-xl font-semibold text-primary">Hamilton Health Hub</h1>
           </div>
@@ -117,4 +116,3 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
 };
 
 export default Navbar;
-
