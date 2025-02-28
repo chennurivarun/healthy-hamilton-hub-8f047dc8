@@ -1,8 +1,15 @@
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+}
+
+/* Main container adjustments */
+.app-container {
+  @apply min-h-screen bg-background text-foreground;
+  padding-left: var(--sidebar-width);
 }
 
 .logo {
@@ -12,10 +19,10 @@
   transition: filter 300ms;
 }
 .logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+  filter: drop-shadow(0 0 2em hsl(var(--accent)));
 }
 .logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+  filter: drop-shadow(0 0 2em hsl(var(--accent)/0.8));
 }
 
 @keyframes logo-spin {
@@ -37,6 +44,35 @@
   padding: 2em;
 }
 
-.read-the-docs {
-  color: #888;
+/* Dark theme overrides */
+.dark-theme {
+  --bg-color: #1a1f2c;
+  --card-bg: #1e2331;
+  --text-color: #e6e8ec;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --accent-color: #4caf50;
+}
+
+/* Component-specific styles */
+.metric-value {
+  @apply text-2xl font-bold;
+  color: hsl(var(--foreground));
+}
+
+.metric-label {
+  @apply text-sm font-medium;
+  color: hsl(var(--muted-foreground));
+}
+
+.chart-container {
+  @apply rounded-2xl overflow-hidden bg-card/50 backdrop-blur-sm;
+  height: 300px;
+}
+
+.data-point {
+  @apply fill-primary;
+}
+
+.data-point-active {
+  @apply fill-primary stroke-card stroke-2;
 }

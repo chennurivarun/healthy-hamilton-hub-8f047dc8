@@ -7,60 +7,63 @@
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 0 0% 9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
-    --primary: 0 0% 15%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
-    --accent: 0 0% 15%;
-    --accent-foreground: 0 0% 98%;
+    --background: 215 28% 17%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 122 80% 60%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 122 80% 60%;
+    --accent-foreground: 210 40% 98%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 15%;
-    --radius: 0.75rem;
-    --tooltip-bg: 0 0% 98%;
-    --tooltip-fg: 0 0% 9%;
-    --tooltip-border: 0 0% 85%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 20%;
+    --input: 217 33% 20%;
+    --ring: 224 71.4% 4.1%;
+    --radius: 1rem;
+    --tooltip-bg: 222 47% 11%;
+    --tooltip-fg: 210 40% 98%;
+    --tooltip-border: 217 33% 20%;
     --purple-primary: 252 89% 75%;
     --purple-secondary: 264 55% 54%;
+    --sidebar-width: 72px;
+    --sidebar-expanded-width: 240px;
   }
 
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 98%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.9%;
-    --tooltip-bg: 252 89% 18%;
-    --tooltip-fg: 0 0% 98%;
-    --tooltip-border: 264 55% 30%;
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 122 80% 60%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215 25% 40%;
+    --accent: 122 80% 60%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 217 33% 20%;
+    --radius: 1rem;
+    --tooltip-bg: 0 0% 100%;
+    --tooltip-fg: 222 47% 11%;
+    --tooltip-border: 214.3 31.8% 91.4%;
   }
 
   * {
-    @apply border-border selection:bg-white/10 selection:text-white;
+    @apply border-border selection:bg-accent/20 selection:text-foreground;
   }
 
   body {
@@ -68,7 +71,7 @@
   }
 
   .glass {
-    @apply bg-white/60 dark:bg-black/60 backdrop-blur-lg border border-white/20 dark:border-white/10 shadow-lg;
+    @apply bg-card/80 dark:bg-card/80 backdrop-blur-lg border border-white/10 dark:border-white/5 shadow-lg;
   }
 
   .card-hover {
@@ -84,28 +87,51 @@
   }
 
   .feature-tag-existing {
-    @apply bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700;
+    @apply bg-muted text-muted-foreground hover:bg-muted/80;
   }
 
   .feature-tag-improved, .feature-tag-enhanced {
-    @apply bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600;
+    @apply bg-muted/80 text-muted-foreground hover:bg-muted/60;
   }
 
   .feature-tag-new {
-    @apply bg-gray-300 text-gray-700 dark:bg-gray-600 dark:text-gray-200 hover:bg-gray-400 dark:hover:bg-gray-500;
+    @apply bg-muted/60 text-muted-foreground hover:bg-muted/40;
   }
   
   .nav-card {
-    @apply bg-white/80 dark:bg-black/80 backdrop-blur-md shadow-lg;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.01);
-  }
-  
-  .dark .nav-card {
+    @apply bg-card/90 backdrop-blur-md shadow-lg;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.05);
   }
-
+  
   .search-icon {
-    @apply text-white bg-purple-500 hover:bg-purple-600 dark:bg-purple-700 dark:hover:bg-purple-800 rounded-full p-3 shadow-lg transition-all duration-300 cursor-pointer;
+    @apply text-foreground bg-accent hover:bg-accent/80 dark:bg-accent dark:hover:bg-accent/80 rounded-full p-3 shadow-lg transition-all duration-300 cursor-pointer;
+  }
+
+  /* New side navigation styles */
+  .side-nav {
+    @apply fixed left-0 top-0 h-screen bg-card/90 backdrop-blur-md border-r border-border/50 shadow-xl transition-all duration-300 z-50;
+    width: var(--sidebar-width);
+  }
+
+  .side-nav-item {
+    @apply flex items-center justify-center w-full p-3 relative text-muted-foreground hover:text-foreground transition-all duration-200;
+  }
+
+  .side-nav-item.active {
+    @apply text-primary;
+  }
+
+  .side-nav-item-icon {
+    @apply w-6 h-6;
+  }
+
+  /* Map styles */
+  .map-container {
+    @apply rounded-2xl overflow-hidden bg-secondary/50 backdrop-blur-sm;
+  }
+
+  .metric-card {
+    @apply glass rounded-2xl overflow-hidden p-5 transition-all duration-300 hover:shadow-lg hover:bg-card/90;
   }
 }
 
@@ -187,46 +213,36 @@
 
 /* Enhanced tooltip styles */
 .feature-tooltip {
-  @apply z-50 px-4 py-3 rounded-lg shadow-lg border text-sm font-medium backdrop-blur-md;
+  @apply z-50 px-4 py-3 rounded-xl shadow-lg border text-sm font-medium backdrop-blur-md;
   background-color: hsl(var(--tooltip-bg));
   color: hsl(var(--tooltip-fg));
   border-color: hsl(var(--tooltip-border));
   max-width: 320px;
   backdrop-filter: blur(8px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 .info-icon {
   @apply transition-colors duration-200 opacity-90 hover:opacity-100 block;
-  color: hsl(var(--purple-primary));
+  color: hsl(var(--primary));
 }
 
-.dark .info-icon {
-  color: hsl(var(--purple-secondary));
-}
-
-/* Responsive styles for bottom menu */
+/* Responsive styles */
 .menu-bar-container {
-  @apply fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 flex justify-center w-auto;
+  @apply fixed left-4 top-1/2 transform -translate-y-1/2 z-50 flex flex-col justify-center w-auto;
 }
 
 @media (max-width: 640px) {
   .menu-bar-container {
-    @apply bottom-6 w-[92%];
-  }
-}
-
-@media (min-width: 768px) {
-  .menu-bar-container {
-    @apply w-auto;
+    @apply left-2;
   }
 }
 
 /* Global search button */
 .global-search-button {
   @apply fixed bottom-24 right-6 z-40 flex items-center justify-center;
-  @apply bg-purple-500 text-white p-3 rounded-full shadow-lg;
-  @apply hover:bg-purple-600 transition-all duration-300;
-  @apply dark:bg-purple-700 dark:hover:bg-purple-800;
+  @apply bg-primary text-foreground p-3 rounded-full shadow-lg;
+  @apply hover:bg-primary/80 transition-all duration-300;
 }
 
 @media (max-width: 640px) {
@@ -241,12 +257,8 @@
 }
 
 .top-search-container .search-field-wrapper {
-  @apply bg-white/90 dark:bg-black/80 backdrop-blur-md rounded-lg shadow-md transition-all duration-300;
+  @apply bg-card/80 backdrop-blur-md rounded-xl shadow-md transition-all duration-300 border border-border/50;
   min-width: 200px;
-}
-
-.dark .top-search-container .search-field-wrapper {
-  @apply border border-gray-800;
 }
 
 /* Feature Tag Hover Improvements */
@@ -256,4 +268,44 @@
 
 .feature-tag:hover .info-icon {
   @apply opacity-100;
+}
+
+/* Content layout adjustments for side navbar */
+.main-content {
+  @apply pl-[calc(var(--sidebar-width)+1rem)] transition-all duration-300;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    @apply pl-[calc(var(--sidebar-width)+0.5rem)];
+  }
+}
+
+/* Card style refinements */
+.dashboard-card {
+  @apply rounded-2xl overflow-hidden bg-card border border-border/40 transition-all duration-300;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.accent-glow {
+  box-shadow: 0 0 15px hsl(var(--accent));
+}
+
+/* Chart and activity styles */
+.chart-line {
+  stroke: hsl(var(--accent)); 
+  stroke-width: 2;
+}
+
+.chart-area {
+  fill: url(#greenGradient);
+}
+
+.activity-item {
+  @apply rounded-xl mb-2 p-3 bg-card/60 backdrop-blur-sm border border-border/50 transition-all duration-300;
+}
+
+.side-nav-tooltip {
+  @apply bg-card/90 backdrop-blur-md border border-border/50 text-foreground px-3 py-2 rounded-lg;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05);
 }

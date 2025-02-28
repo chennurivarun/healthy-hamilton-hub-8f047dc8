@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import MainLayout from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
-import { Send, Info } from "lucide-react";
+import { Send, Info, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -51,7 +51,7 @@ const Chat = () => {
 
         <Card className={cn(
           "h-[600px] flex flex-col animate-fade-in relative",
-          "glass"
+          "dashboard-card"
         )}>
           <div className="absolute top-2 right-2">
             <TooltipProvider>
@@ -68,6 +68,12 @@ const Chat = () => {
               </Tooltip>
             </TooltipProvider>
           </div>
+          
+          <div className="flex items-center p-4 border-b border-border/50">
+            <Bot className="h-5 w-5 text-primary mr-2" />
+            <div className="font-medium">AI Health Assistant</div>
+          </div>
+          
           <div className="flex-1 p-4 overflow-y-auto space-y-4">
             {messages.map((message, index) => (
               <div
@@ -79,10 +85,10 @@ const Chat = () => {
               >
                 <div
                   className={cn(
-                    "max-w-[80%] rounded-lg px-4 py-2",
+                    "max-w-[80%] rounded-2xl px-4 py-3",
                     message.role === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted"
+                      ? "bg-primary/20 text-foreground"
+                      : "bg-secondary text-foreground"
                   )}
                 >
                   {message.content}
@@ -91,7 +97,7 @@ const Chat = () => {
             ))}
           </div>
 
-          <div className="p-4 border-t">
+          <div className="p-4 border-t border-border/50">
             <div className="flex gap-2">
               <input
                 type="text"
@@ -99,9 +105,9 @@ const Chat = () => {
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
                 placeholder="Type your message..."
-                className="flex-1 bg-transparent border rounded-md px-3 py-2"
+                className="flex-1 bg-background/50 border border-border/50 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
-              <Button onClick={handleSendMessage}>
+              <Button onClick={handleSendMessage} className="rounded-xl bg-primary hover:bg-primary/80">
                 <Send className="h-4 w-4" />
               </Button>
             </div>

@@ -1,16 +1,14 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { useLocation, useNavigate } from "react-router-dom";
+import SideNav from "./SideNav";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { MenuBar } from "@/components/ui/bottom-menu";
-import { Home, MapPin, Library, Lightbulb, MessageSquare, Sun, Moon, Info, Search, X } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { Info, Search, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { 
   SearchField, 
@@ -82,22 +80,7 @@ export const features = {
 };
 
 const MainLayout = ({ children }: MainLayoutProps) => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [theme, setTheme] = useState<"light" | "dark">("light");
   const [searchQuery, setSearchQuery] = useState("");
-  const [showSearchInput, setShowSearchInput] = useState(false);
-
-  useEffect(() => {
-    const isDark = document.documentElement.classList.contains("dark");
-    setTheme(isDark ? "dark" : "light");
-  }, []);
-
-  const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-    document.documentElement.classList.toggle("dark");
-  };
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
@@ -115,49 +98,6 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     }
   };
 
-  const menuItems = [
-    {
-      icon: (props) => <Home {...props} />,
-      label: "Dashboard",
-      href: "/"
-    },
-    {
-      icon: (props) => <MapPin {...props} />,
-      label: "Map View",
-      href: "/map"
-    },
-    {
-      icon: (props) => <Library {...props} />,
-      label: "Resources",
-      href: "/resources"
-    },
-    {
-      icon: (props) => <Lightbulb {...props} />,
-      label: "Insights",
-      href: "/insights"
-    },
-    {
-      icon: (props) => <MessageSquare {...props} />,
-      label: "Chat",
-      href: "/chat"
-    },
-    {
-      icon: (props) => theme === "light" ? <Moon {...props} /> : <Sun {...props} />,
-      label: "Theme"
-    }
-  ];
-
-  const handleMenuItemClick = (index: number) => {
-    if (index === menuItems.length - 1) {
-      toggleTheme();
-    } else {
-      const item = menuItems[index];
-      if (item.href) {
-        navigate(item.href);
-      }
-    }
-  };
-
   // Feature labels to show in the top-right corner
   const featuresToShowInCorner = [
     features.darkModeToggle,
@@ -167,9 +107,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-background transition-colors duration-300 pb-32">
+      <div className="min-h-screen bg-background transition-colors duration-300">
+        <SideNav />
+        
         <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
-          {/* New Search Bar */}
+          {/* Search Bar */}
           <div className="top-search-container">
             <SearchField 
               value={searchQuery} 
@@ -209,15 +151,9 @@ const MainLayout = ({ children }: MainLayoutProps) => {
             </Tooltip>
           ))}
         </div>
-        <main className="container mx-auto px-4 pt-4">
+        <main className="main-content container mx-auto px-4 pt-4">
           {children}
         </main>
-
-        <div className="menu-bar-container">
-          <Card className="nav-card p-2 border-0">
-            <MenuBar items={menuItems} onItemClick={handleMenuItemClick} />
-          </Card>
-        </div>
       </div>
     </TooltipProvider>
   );

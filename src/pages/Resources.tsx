@@ -78,7 +78,7 @@ const Resources = () => {
               key={resource.title}
               className={cn(
                 "p-6 relative overflow-hidden group animate-fade-in",
-                "glass hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                "dashboard-card"
               )}
               style={{
                 animationDelay: `${index * 100}ms`,
@@ -120,7 +120,7 @@ const Resources = () => {
                       <Button
                         key={item}
                         variant="ghost"
-                        className="w-full justify-start text-left"
+                        className="w-full justify-start text-left rounded-xl hover:bg-primary/5"
                       >
                         {item}
                       </Button>
