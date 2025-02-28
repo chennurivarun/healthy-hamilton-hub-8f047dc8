@@ -13,7 +13,7 @@
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 0 0% 0%;
+    --primary: 200 100% 50%; /* Bright cyan for light mode */
     --primary-foreground: 0 0% 100%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222 47% 11%;
@@ -43,7 +43,7 @@
     --card-foreground: 210 40% 98%;
     --popover: 222 47% 11%;
     --popover-foreground: 210 40% 98%;
-    --primary: 0 0% 100%;
+    --primary: 200 100% 60%; /* Lighter cyan for dark mode */
     --primary-foreground: 222 47% 11%;
     --secondary: 217 33% 17%;
     --secondary-foreground: 210 40% 98%;
@@ -60,7 +60,12 @@
     --tooltip-fg: 210 40% 98%;
     --tooltip-border: 217 33% 20%;
   }
-
+  /* Ensure side nav icons are always visible */
+  .side-nav-item svg,
+  .side-nav-item-icon {
+    opacity: 1 !important;
+    color: hsl(var(--primary)) !important;
+  }
   * {
     @apply border-border selection:bg-accent/20 selection:text-foreground;
   }

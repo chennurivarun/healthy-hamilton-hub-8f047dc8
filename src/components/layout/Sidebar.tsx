@@ -55,12 +55,12 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
             className={cn(
               "w-full justify-start mb-1",
               !isOpen && "justify-center",
-              isActivePath(item.href) && "bg-primary/10 text-primary"
+              isActivePath(item.href) && "bg-/10 text-primary"
             )}
             asChild
           >
             <Link to={item.href}>
-              <item.icon className="h-5 w-5 text-primary" />
+            <item.icon className="h-5 w-5 !text-primary !opacity-100" />
               {isOpen && <span className="ml-2">{item.name}</span>}
             </Link>
           </Button>

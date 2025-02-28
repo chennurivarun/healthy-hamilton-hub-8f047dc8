@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import MainLayout from "@/components/layout/MainLayout";
@@ -53,7 +52,7 @@ const Chat = () => {
           "h-[600px] flex flex-col animate-fade-in relative",
           "dashboard-card"
         )}>
-          <div className="absolute top-2 right-2">
+          <div className="absolute top-2 right-2 z-10">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -62,7 +61,7 @@ const Chat = () => {
                     <Info className="w-3 h-3 info-icon" />
                   </span>
                 </TooltipTrigger>
-                <TooltipContent side="left" className="max-w-xs">
+                <TooltipContent side="top" align="end" className="max-w-xs z-50">
                   <p>{features.aiHealthAssistant.description}</p>
                 </TooltipContent>
               </Tooltip>

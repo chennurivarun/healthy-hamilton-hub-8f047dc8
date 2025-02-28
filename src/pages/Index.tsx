@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import MainLayout from "@/components/layout/MainLayout";
@@ -71,7 +70,7 @@ const Index = () => {
               <TooltipProvider>
                 <Tooltip delayDuration={0}>
                   <TooltipTrigger asChild>
-                    <div className="absolute top-2 right-2 cursor-pointer">
+                    <div className="absolute top-2 right-2 cursor-pointer z-10">
                       <span className={cn(
                         "feature-tag flex items-center gap-1",
                         metric.feature.type === "existing" && "feature-tag-existing",
@@ -83,7 +82,7 @@ const Index = () => {
                       </span>
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-xs">
+                  <TooltipContent side="top" align="end" className="max-w-xs z-50">
                     <p>{metric.feature.description}</p>
                   </TooltipContent>
                 </Tooltip>
@@ -133,7 +132,7 @@ const Index = () => {
           )} 
             style={{ animationDelay: "400ms" }}
           >
-            <div className="absolute top-2 right-2">
+            <div className="absolute top-2 right-2 z-10">
               <TooltipProvider>
                 <Tooltip delayDuration={0}>
                   <TooltipTrigger asChild>
@@ -142,7 +141,7 @@ const Index = () => {
                       <Info className="w-3 h-3 info-icon" />
                     </span>
                   </TooltipTrigger>
-                  <TooltipContent side="left" className="max-w-xs">
+                  <TooltipContent side="top" align="end" className="max-w-xs z-50">
                     <p>{features.communityHealthMap.description}</p>
                   </TooltipContent>
                 </Tooltip>
@@ -165,7 +164,7 @@ const Index = () => {
           )} 
             style={{ animationDelay: "500ms" }}
           >
-            <div className="absolute top-2 right-2">
+            <div className="absolute top-2 right-2 z-10">
               <TooltipProvider>
                 <Tooltip delayDuration={0}>
                   <TooltipTrigger asChild>
@@ -174,7 +173,7 @@ const Index = () => {
                       <Info className="w-3 h-3 info-icon" />
                     </span>
                   </TooltipTrigger>
-                  <TooltipContent side="left" className="max-w-xs">
+                  <TooltipContent side="top" align="end" className="max-w-xs z-50">
                     <p>{features.predictiveAnalytics.description}</p>
                   </TooltipContent>
                 </Tooltip>

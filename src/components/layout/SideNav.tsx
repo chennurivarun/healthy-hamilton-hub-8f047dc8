@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -9,6 +8,28 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Home, MapPin, Library, Lightbulb, MessageSquare, Sun, Moon } from "lucide-react";
+
+// Add this to your global CSS or component styles
+const navStyles = `
+  /* Ensure icons are visible without hover */
+  .side-nav-item {
+    @apply flex items-center justify-center w-10 h-10 rounded-md;
+    @apply transition-all duration-300;
+  }
+  
+  .side-nav-item svg {
+    @apply h-5 w-5 text-primary !opacity-100;
+    /* This ensures the icons are always visible */
+  }
+  
+  .side-nav-item:hover {
+    @apply bg-primary/10;
+  }
+  
+  .side-nav-item.active {
+    @apply bg-primary/20;
+  }
+`;
 
 const SideNav = () => {
   const location = useLocation();
@@ -30,6 +51,16 @@ const SideNav = () => {
       setTheme("dark");
       localStorage.setItem("theme", "dark");
     }
+    
+    // Create style element for nav styles
+    const styleEl = document.createElement('style');
+    styleEl.textContent = navStyles;
+    document.head.appendChild(styleEl);
+    
+    return () => {
+      // Clean up
+      styleEl.remove();
+    };
   }, []);
 
   const toggleTheme = () => {
@@ -68,8 +99,9 @@ const SideNav = () => {
                       isActive(item.href) && "active"
                     )}
                     aria-label={item.name}
+                    style={{ opacity: 1 }} // Force opacity
                   >
-                    <item.icon className="side-nav-item-icon" />
+                    <item.icon style={{ opacity: 1 }} /> {/* Force opacity */}
                     {isActive(item.href) && (
                       <span className="absolute left-0 w-1 h-8 bg-primary rounded-r-md"></span>
                     )}
@@ -89,11 +121,12 @@ const SideNav = () => {
                   onClick={toggleTheme}
                   className="side-nav-item"
                   aria-label="Toggle theme"
+                  style={{ opacity: 1 }} // Force opacity
                 >
                   {theme === "light" ? (
-                    <Moon className="side-nav-item-icon" />
+                    <Moon style={{ opacity: 1 }} /> // Force opacity
                   ) : (
-                    <Sun className="side-nav-item-icon" />
+                    <Sun style={{ opacity: 1 }} /> // Force opacity
                   )}
                 </button>
               </TooltipTrigger>

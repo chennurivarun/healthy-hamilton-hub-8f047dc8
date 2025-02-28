@@ -84,7 +84,7 @@ const Resources = () => {
                 animationDelay: `${index * 100}ms`,
               }}
             >
-              <div className="absolute top-2 right-2">
+              <div className="absolute top-2 right-2" z-10>
                 <TooltipProvider>
                   <Tooltip delayDuration={0}>
                     <TooltipTrigger asChild>
@@ -98,7 +98,7 @@ const Resources = () => {
                         <Info className="w-3 h-3 info-icon" />
                       </span>
                     </TooltipTrigger>
-                    <TooltipContent side="left" className="max-w-xs">
+                    <TooltipContent side="top" align="end" className="max-w-xs z-50">
                       <p>{resource.feature.description}</p>
                     </TooltipContent>
                   </Tooltip>

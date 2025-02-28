@@ -1,4 +1,3 @@
-
 import { Card } from "@/components/ui/card";
 import MainLayout from "@/components/layout/MainLayout";
 import { BarChart, LineChart, AreaChart, ComposedChart, Bar, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -47,7 +46,7 @@ const Insights = () => {
             "p-6 animate-fade-in relative",
             "glass"
           )}>
-            <div className="absolute top-2 right-2">
+            <div className="absolute top-2 right-2 z-10">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -56,7 +55,7 @@ const Insights = () => {
                       <Info className="w-3 h-3" />
                     </span>
                   </TooltipTrigger>
-                  <TooltipContent side="left" className="max-w-xs">
+                  <TooltipContent side="top" align="end" className="max-w-xs z-50">
                     <p>{features.monthlyHealthIndicators.description}</p>
                   </TooltipContent>
                 </Tooltip>
@@ -85,7 +84,7 @@ const Insights = () => {
             "p-6 animate-fade-in relative",
             "glass"
           )}>
-            <div className="absolute top-2 right-2">
+            <div className="absolute top-2 right-2 z-10">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -94,7 +93,7 @@ const Insights = () => {
                       <Info className="w-3 h-3" />
                     </span>
                   </TooltipTrigger>
-                  <TooltipContent side="left" className="max-w-xs">
+                  <TooltipContent side="top" align="end" className="max-w-xs z-50">
                     <p>{features.predictiveAnalytics.description}</p>
                   </TooltipContent>
                 </Tooltip>
