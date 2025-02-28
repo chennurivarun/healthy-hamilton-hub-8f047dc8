@@ -15,9 +15,14 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => {
-  // Set dark theme by default when the app loads
+  // Check for stored theme preference
   useEffect(() => {
-    document.documentElement.classList.add("dark");
+    const storedTheme = localStorage.getItem("theme");
+    if (storedTheme === "light") {
+      document.documentElement.classList.remove("dark");
+    } else {
+      document.documentElement.classList.add("dark");
+    }
   }, []);
   
   return (

@@ -7,50 +7,20 @@
 
 @layer base {
   :root {
-    --background: 215 28% 17%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 122 80% 60%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 122 80% 60%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217 33% 20%;
-    --input: 217 33% 20%;
-    --ring: 224 71.4% 4.1%;
-    --radius: 1rem;
-    --tooltip-bg: 222 47% 11%;
-    --tooltip-fg: 210 40% 98%;
-    --tooltip-border: 217 33% 20%;
-    --purple-primary: 252 89% 75%;
-    --purple-secondary: 264 55% 54%;
-    --sidebar-width: 72px;
-    --sidebar-expanded-width: 240px;
-  }
-
-  .light {
     --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 122 80% 60%;
-    --primary-foreground: 210 40% 98%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222 47% 11%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215 25% 40%;
-    --accent: 122 80% 60%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 0 0% 0%;
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     --border: 214.3 31.8% 91.4%;
@@ -58,8 +28,37 @@
     --ring: 217 33% 20%;
     --radius: 1rem;
     --tooltip-bg: 0 0% 100%;
-    --tooltip-fg: 222 47% 11%;
+    --tooltip-fg: 240 10% 3.9%;
     --tooltip-border: 214.3 31.8% 91.4%;
+    --purple-primary: 252 89% 75%;
+    --purple-secondary: 264 55% 54%;
+    --sidebar-width: 72px;
+    --sidebar-expanded-width: 240px;
+  }
+
+  .dark {
+    --background: 215 28% 17%;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 0 0% 100%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217 33% 20%;
+    --input: 217 33% 20%;
+    --ring: 224 71.4% 4.1%;
+    --tooltip-bg: 222 47% 11%;
+    --tooltip-fg: 210 40% 98%;
+    --tooltip-border: 217 33% 20%;
   }
 
   * {
@@ -71,7 +70,7 @@
   }
 
   .glass {
-    @apply bg-card/80 dark:bg-card/80 backdrop-blur-lg border border-white/10 dark:border-white/5 shadow-lg;
+    @apply bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl;
   }
 
   .card-hover {
@@ -114,7 +113,7 @@
   }
 
   .side-nav-item {
-    @apply flex items-center justify-center w-full p-3 relative text-muted-foreground hover:text-foreground transition-all duration-200;
+    @apply flex items-center justify-center w-full p-3 relative text-foreground transition-all duration-200;
   }
 
   .side-nav-item.active {
@@ -223,7 +222,7 @@
 }
 
 .info-icon {
-  @apply transition-colors duration-200 opacity-90 hover:opacity-100 block;
+  @apply transition-colors duration-200 block opacity-90 hover:opacity-100;
   color: hsl(var(--primary));
 }
 
@@ -241,7 +240,7 @@
 /* Global search button */
 .global-search-button {
   @apply fixed bottom-24 right-6 z-40 flex items-center justify-center;
-  @apply bg-primary text-foreground p-3 rounded-full shadow-lg;
+  @apply bg-primary text-primary-foreground p-3 rounded-full shadow-lg;
   @apply hover:bg-primary/80 transition-all duration-300;
 }
 
@@ -263,7 +262,7 @@
 
 /* Feature Tag Hover Improvements */
 .feature-tag .info-icon {
-  @apply opacity-80 transition-opacity duration-200;
+  @apply opacity-90 transition-opacity duration-200;
 }
 
 .feature-tag:hover .info-icon {
@@ -308,4 +307,21 @@
 .side-nav-tooltip {
   @apply bg-card/90 backdrop-blur-md border border-border/50 text-foreground px-3 py-2 rounded-lg;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* Light mode glassmorphism */
+.light .glass {
+  @apply bg-white/70 backdrop-blur-lg border border-white/20;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.light .card, 
+.light .dashboard-card,
+.light .side-nav {
+  @apply bg-white/70 backdrop-blur-lg;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+}
+
+.light .side-nav-tooltip {
+  @apply bg-white/90 backdrop-blur-lg;
 }

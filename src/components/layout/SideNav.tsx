@@ -19,10 +19,16 @@ const SideNav = () => {
     const isDark = document.documentElement.classList.contains("dark");
     setTheme(isDark ? "dark" : "light");
     
-    // Set dark mode by default
-    if (!isDark) {
+    // Check stored theme preference
+    const storedTheme = localStorage.getItem("theme");
+    if (storedTheme) {
+      setTheme(storedTheme as "light" | "dark");
+      document.documentElement.classList.toggle("dark", storedTheme === "dark");
+    } else {
+      // Set dark mode by default
       document.documentElement.classList.add("dark");
       setTheme("dark");
+      localStorage.setItem("theme", "dark");
     }
   }, []);
 
@@ -30,6 +36,7 @@ const SideNav = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
     document.documentElement.classList.toggle("dark");
+    localStorage.setItem("theme", newTheme);
   };
 
   const navigation = [
