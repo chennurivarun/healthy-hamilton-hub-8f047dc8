@@ -9,8 +9,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { MenuBar } from "@/components/ui/bottom-menu";
-import { Home, MapPin, Library, Lightbulb, MessageSquare, Sun, Moon, Info } from "lucide-react";
+import { Home, MapPin, Library, Lightbulb, MessageSquare, Sun, Moon, Info, Search, X } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { toast } from "@/hooks/use-toast";
+import { 
+  SearchField, 
+  SearchFieldInput, 
+  SearchFieldClear, 
+  SearchFieldGroup 
+} from "@/components/ui/searchfield";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -78,6 +85,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchInput, setShowSearchInput] = useState(false);
 
   useEffect(() => {
     const isDark = document.documentElement.classList.contains("dark");
@@ -88,6 +97,22 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
     document.documentElement.classList.toggle("dark");
+  };
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      toast({
+        title: "Search initiated",
+        description: `Searching for: "${searchQuery}"`,
+      });
+      setSearchQuery("");
+    } else {
+      toast({
+        title: "Search error",
+        description: "Please enter a search term",
+        variant: "destructive",
+      });
+    }
   };
 
   const menuItems = [
@@ -143,7 +168,28 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-background transition-colors duration-300 pb-32">
-        <div className="fixed top-4 right-4 z-50 flex gap-2">
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
+          {/* New Search Bar */}
+          <div className="top-search-container">
+            <SearchField 
+              value={searchQuery} 
+              onChange={setSearchQuery}
+              onSubmit={handleSearch}
+              className="search-field-wrapper"
+            >
+              <SearchFieldGroup className="bg-transparent border-0 shadow-none px-2">
+                <Search className="h-4 w-4 text-muted-foreground" />
+                <SearchFieldInput 
+                  placeholder="Search..." 
+                  className="bg-transparent border-0 shadow-none outline-none"
+                />
+                <SearchFieldClear onPress={() => setSearchQuery("")}>
+                  <X className="h-4 w-4" />
+                </SearchFieldClear>
+              </SearchFieldGroup>
+            </SearchField>
+          </div>
+
           {featuresToShowInCorner.map((feature) => (
             <Tooltip key={feature.name}>
               <TooltipTrigger asChild>

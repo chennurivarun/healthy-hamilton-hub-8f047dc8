@@ -187,17 +187,21 @@
 
 /* Enhanced tooltip styles */
 .feature-tooltip {
-  @apply z-50 px-4 py-3 rounded-lg shadow-lg border;
+  @apply z-50 px-4 py-3 rounded-lg shadow-lg border text-sm font-medium backdrop-blur-md;
   background-color: hsl(var(--tooltip-bg));
   color: hsl(var(--tooltip-fg));
   border-color: hsl(var(--tooltip-border));
   max-width: 320px;
-  font-size: 0.9rem;
   backdrop-filter: blur(8px);
 }
 
 .info-icon {
-  @apply text-purple-500 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors duration-200;
+  @apply transition-colors duration-200 opacity-90 hover:opacity-100 block;
+  color: hsl(var(--purple-primary));
+}
+
+.dark .info-icon {
+  color: hsl(var(--purple-secondary));
 }
 
 /* Responsive styles for bottom menu */
@@ -229,4 +233,27 @@
   .global-search-button {
     @apply bottom-20 right-4;
   }
+}
+
+/* Top Navigation Search Bar */
+.top-search-container {
+  @apply relative z-50 transition-all duration-300;
+}
+
+.top-search-container .search-field-wrapper {
+  @apply bg-white/90 dark:bg-black/80 backdrop-blur-md rounded-lg shadow-md transition-all duration-300;
+  min-width: 200px;
+}
+
+.dark .top-search-container .search-field-wrapper {
+  @apply border border-gray-800;
+}
+
+/* Feature Tag Hover Improvements */
+.feature-tag .info-icon {
+  @apply opacity-80 transition-opacity duration-200;
+}
+
+.feature-tag:hover .info-icon {
+  @apply opacity-100;
 }
