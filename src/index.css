@@ -86,15 +86,15 @@
   }
 
   .feature-tag-existing {
-    @apply bg-muted text-muted-foreground hover:bg-muted/80;
+    @apply bg-muted text-muted-foreground;
   }
 
   .feature-tag-improved, .feature-tag-enhanced {
-    @apply bg-muted/80 text-muted-foreground hover:bg-muted/60;
+    @apply bg-muted/80 text-muted-foreground;
   }
 
   .feature-tag-new {
-    @apply bg-muted/60 text-muted-foreground hover:bg-muted/40;
+    @apply bg-muted/60 text-muted-foreground;
   }
   
   .nav-card {
@@ -106,7 +106,7 @@
     @apply text-foreground bg-accent hover:bg-accent/80 dark:bg-accent dark:hover:bg-accent/80 rounded-full p-3 shadow-lg transition-all duration-300 cursor-pointer;
   }
 
-  /* New side navigation styles */
+  /* Side navigation styles with improved visibility */
   .side-nav {
     @apply fixed left-0 top-0 h-screen bg-card/90 backdrop-blur-md border-r border-border/50 shadow-xl transition-all duration-300 z-50;
     width: var(--sidebar-width);
@@ -122,6 +122,7 @@
 
   .side-nav-item-icon {
     @apply w-6 h-6;
+    opacity: 1 !important; /* Force icons to be visible always */
   }
 
   /* Map styles */
@@ -143,7 +144,7 @@
   animation: fadeIn 0.5s ease-out forwards;
 }
 
-/* New animations and styles for the bottom menu */
+/* Animations and styles for the bottom menu */
 @keyframes slideIn {
   from {
     transform: translateY(-5px);
@@ -177,6 +178,7 @@
   transition: all 800ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
+/* Tooltip visibility improvements */
 [data-state='closed'] {
   opacity: 0;
   transition: opacity 150ms ease-out;
@@ -222,7 +224,8 @@
 }
 
 .info-icon {
-  @apply transition-colors duration-200 block opacity-90 hover:opacity-100;
+  @apply transition-colors duration-200 block;
+  opacity: 1 !important; /* Force info icons to be visible always */
   color: hsl(var(--primary));
 }
 
@@ -261,12 +264,12 @@
 }
 
 /* Feature Tag Hover Improvements */
-.feature-tag .info-icon {
-  @apply opacity-90 transition-opacity duration-200;
+.feature-tag {
+  opacity: 1 !important; /* Force feature tags to be visible always */
 }
 
-.feature-tag:hover .info-icon {
-  @apply opacity-100;
+.feature-tag .info-icon {
+  opacity: 1 !important; /* Force info icons to be visible always */
 }
 
 /* Content layout adjustments for side navbar */

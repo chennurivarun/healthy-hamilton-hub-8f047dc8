@@ -59,7 +59,7 @@ const SideNav = () => {
         <div className="flex flex-col items-center h-full py-6">
           <div className="flex-1 flex flex-col items-center space-y-4">
             {navigation.map((item) => (
-              <Tooltip key={item.name}>
+              <Tooltip key={item.name} delayDuration={0}>
                 <TooltipTrigger asChild>
                   <button
                     onClick={() => navigate(item.href)}
@@ -83,7 +83,7 @@ const SideNav = () => {
           </div>
           
           <div className="mt-auto">
-            <Tooltip>
+            <Tooltip delayDuration={0}>
               <TooltipTrigger asChild>
                 <button
                   onClick={toggleTheme}
