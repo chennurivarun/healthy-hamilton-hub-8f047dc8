@@ -98,7 +98,7 @@ const Resources = () => {
                         <Info className="w-3 h-3 info-icon" />
                       </span>
                     </TooltipTrigger>
-                    <TooltipContent side="top" align="end" className="max-w-xs z-50">
+                    <TooltipContent side="bottom" align="end" className="max-w-xs z-50">
                       <p>{resource.feature.description}</p>
                     </TooltipContent>
                   </Tooltip>

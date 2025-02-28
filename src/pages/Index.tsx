@@ -54,13 +54,13 @@ const Index = () => {
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 z-10">
           {metrics.map((metric, index) => (
             <Card 
               key={metric.title} 
               className={cn(
                 "p-6 relative overflow-hidden group",
-                "dashboard-card",
+                "dashboard-card z-10",
                 "animate-fade-in"
               )}
               style={{
@@ -70,7 +70,7 @@ const Index = () => {
               <TooltipProvider>
                 <Tooltip delayDuration={0}>
                   <TooltipTrigger asChild>
-                    <div className="absolute top-2 right-2 cursor-pointer z-10">
+                    <div className="absolute top-2 right-2 cursor-pointer">
                       <span className={cn(
                         "feature-tag flex items-center gap-1",
                         metric.feature.type === "existing" && "feature-tag-existing",
@@ -82,7 +82,7 @@ const Index = () => {
                       </span>
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent side="top" align="end" className="max-w-xs z-50">
+                  <TooltipContent side="bottom" align="end" className="max-w-xs z-50 absolute right-4">
                     <p>{metric.feature.description}</p>
                   </TooltipContent>
                 </Tooltip>
@@ -141,7 +141,7 @@ const Index = () => {
                       <Info className="w-3 h-3 info-icon" />
                     </span>
                   </TooltipTrigger>
-                  <TooltipContent side="top" align="end" className="max-w-xs z-50">
+                  <TooltipContent side="bottom" align="end" className="max-w-xs z-50">
                     <p>{features.communityHealthMap.description}</p>
                   </TooltipContent>
                 </Tooltip>
@@ -173,7 +173,7 @@ const Index = () => {
                       <Info className="w-3 h-3 info-icon" />
                     </span>
                   </TooltipTrigger>
-                  <TooltipContent side="top" align="end" className="max-w-xs z-50">
+                  <TooltipContent side="bottom" align="end" className="max-w-xs z-50">
                     <p>{features.predictiveAnalytics.description}</p>
                   </TooltipContent>
                 </Tooltip>
