@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import { Home, MapPin, Library, Lightbulb, MessageSquare, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -37,7 +36,7 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
           "relative flex items-center gap-2 glass rounded-lg px-3 py-2",
           !isOpen && "justify-center"
         )}>
-          <Search className="h-5 w-5 text-muted-foreground" />
+          <Search className="h-5 w-5 text-primary" />
           {isOpen && (
             <input
               type="text"
@@ -61,7 +60,7 @@ const Sidebar = ({ isOpen }: SidebarProps) => {
             asChild
           >
             <Link to={item.href}>
-              <item.icon className="h-5 w-5" />
+              <item.icon className="h-5 w-5 text-primary" />
               {isOpen && <span className="ml-2">{item.name}</span>}
             </Link>
           </Button>
