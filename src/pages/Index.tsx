@@ -69,11 +69,11 @@ const Index = () => {
               }}
             >
               <TooltipProvider>
-                <Tooltip>
+                <Tooltip delayDuration={0}>
                   <TooltipTrigger asChild>
                     <div className="absolute top-2 right-2 cursor-pointer">
                       <span className={cn(
-                        "feature-tag flex items-center gap-1 group-hover:bg-opacity-100 transition-all",
+                        "feature-tag flex items-center gap-1",
                         metric.feature.type === "existing" && "feature-tag-existing",
                         metric.feature.type === "enhanced" && "feature-tag-improved",
                         metric.feature.type === "new" && "feature-tag-new"
@@ -135,7 +135,7 @@ const Index = () => {
           >
             <div className="absolute top-2 right-2">
               <TooltipProvider>
-                <Tooltip>
+                <Tooltip delayDuration={0}>
                   <TooltipTrigger asChild>
                     <span className="feature-tag feature-tag-improved flex items-center gap-1">
                       {features.communityHealthMap.type}
@@ -167,7 +167,7 @@ const Index = () => {
           >
             <div className="absolute top-2 right-2">
               <TooltipProvider>
-                <Tooltip>
+                <Tooltip delayDuration={0}>
                   <TooltipTrigger asChild>
                     <span className="feature-tag feature-tag-new flex items-center gap-1">
                       {features.predictiveAnalytics.type}

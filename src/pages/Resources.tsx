@@ -86,7 +86,7 @@ const Resources = () => {
             >
               <div className="absolute top-2 right-2">
                 <TooltipProvider>
-                  <Tooltip>
+                  <Tooltip delayDuration={0}>
                     <TooltipTrigger asChild>
                       <span className={cn(
                         "feature-tag flex items-center gap-1",
@@ -95,7 +95,7 @@ const Resources = () => {
                         resource.feature.type === "new" && "feature-tag-new"
                       )}>
                         {resource.feature.type}
-                        <Info className="w-3 h-3" />
+                        <Info className="w-3 h-3 info-icon" />
                       </span>
                     </TooltipTrigger>
                     <TooltipContent side="left" className="max-w-xs">

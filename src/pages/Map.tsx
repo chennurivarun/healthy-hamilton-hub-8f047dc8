@@ -32,11 +32,11 @@ const Map = () => {
           )}>
             <div className="absolute top-2 right-2">
               <TooltipProvider>
-                <Tooltip>
+                <Tooltip delayDuration={0}>
                   <TooltipTrigger asChild>
                     <span className="feature-tag feature-tag-improved flex items-center gap-1">
                       {features.communityHealthMap.type}
-                      <Info className="w-3 h-3" />
+                      <Info className="w-3 h-3 info-icon" />
                     </span>
                   </TooltipTrigger>
                   <TooltipContent side="left" className="max-w-xs">
@@ -68,11 +68,11 @@ const Map = () => {
             )}>
               <div className="absolute top-2 right-2">
                 <TooltipProvider>
-                  <Tooltip>
+                  <Tooltip delayDuration={0}>
                     <TooltipTrigger asChild>
                       <span className="feature-tag feature-tag-existing flex items-center gap-1">
                         {features.dashboardOverview.type}
-                        <Info className="w-3 h-3" />
+                        <Info className="w-3 h-3 info-icon" />
                       </span>
                     </TooltipTrigger>
                     <TooltipContent side="left" className="max-w-xs">
@@ -104,11 +104,11 @@ const Map = () => {
             )}>
               <div className="absolute top-2 right-2">
                 <TooltipProvider>
-                  <Tooltip>
+                  <Tooltip delayDuration={0}>
                     <TooltipTrigger asChild>
                       <span className="feature-tag feature-tag-new flex items-center gap-1">
                         {features.predictiveAnalytics.type}
-                        <Info className="w-3 h-3" />
+                        <Info className="w-3 h-3 info-icon" />
                       </span>
                     </TooltipTrigger>
                     <TooltipContent side="left" className="max-w-xs">

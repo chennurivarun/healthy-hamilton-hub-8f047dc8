@@ -83,6 +83,7 @@
 
   .feature-tag {
     @apply text-xs font-medium px-2 py-1 rounded-full transition-colors cursor-help;
+    opacity: 1 !important; /* Always visible */
   }
 
   .feature-tag-existing {
@@ -106,7 +107,7 @@
     @apply text-foreground bg-accent hover:bg-accent/80 dark:bg-accent dark:hover:bg-accent/80 rounded-full p-3 shadow-lg transition-all duration-300 cursor-pointer;
   }
 
-  /* Side navigation styles with improved visibility */
+  /* Side navigation styles with improved icon visibility */
   .side-nav {
     @apply fixed left-0 top-0 h-screen bg-card/90 backdrop-blur-md border-r border-border/50 shadow-xl transition-all duration-300 z-50;
     width: var(--sidebar-width);
