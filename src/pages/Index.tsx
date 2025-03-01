@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import MainLayout from "@/components/layout/MainLayout";
@@ -50,6 +49,9 @@ const Index = () => {
     const storedToken = localStorage.getItem("mapbox_token");
     if (storedToken) {
       setMapToken(storedToken);
+      console.log("Mapbox token found in localStorage");
+    } else {
+      console.log("No mapbox token found in localStorage");
     }
   }, []);
 
@@ -84,18 +86,31 @@ const Index = () => {
     },
   ];
 
-  // Initialize and render map
   useEffect(() => {
-    if (!mapToken || !mapContainer.current || map.current) return;
+    console.log("Map effect running, token:", mapToken ? "exists" : "missing", "container:", mapContainer.current ? "exists" : "missing");
+    
+    if (!mapToken || !mapContainer.current) {
+      console.log("Cannot initialize map - missing token or container");
+      return;
+    }
+    
+    if (map.current) {
+      console.log("Map already initialized");
+      return;
+    }
 
     try {
+      console.log("Initializing map with token");
       mapboxgl.accessToken = mapToken;
       
+      const mapStyle = isDarkMode ? 
+        'mapbox://styles/mapbox/dark-v11' : 
+        'mapbox://styles/mapbox/light-v11';
+      
+      console.log("Creating map with style:", mapStyle);
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: isDarkMode ? 
-          'mapbox://styles/mapbox/dark-v11' : 
-          'mapbox://styles/mapbox/light-v11',
+        style: mapStyle,
         center: [-79.8711, 43.2557], // Hamilton, Ontario coordinates
         zoom: 10,
         pitch: 40,
@@ -104,6 +119,7 @@ const Index = () => {
       });
 
       map.current.on('load', () => {
+        console.log("Map loaded successfully");
         if (!map.current) return;
         
         // Slow rotation animation for preview
@@ -202,12 +218,19 @@ const Index = () => {
           }
         });
       });
+      
+      // Debug event for map errors
+      map.current.on('error', (e) => {
+        console.error("Mapbox error:", e.error);
+      });
+      
     } catch (error) {
       console.error("Error initializing preview map:", error);
     }
 
     return () => {
       if (map.current) {
+        console.log("Cleaning up map");
         map.current.remove();
         map.current = null;
       }
@@ -323,10 +346,10 @@ const Index = () => {
                 <MapIcon className="h-5 w-5 text-primary" />
                 <h3 className="text-lg font-semibold">Community Health Map</h3>
               </div>
-              <div className="h-[calc(100%-48px)] rounded-xl overflow-hidden relative">
+              <div className="h-[calc(100%-48px)] rounded-xl overflow-hidden relative map-section">
                 {mapToken ? (
                   <>
-                    <div ref={mapContainer} className="absolute inset-0 w-full h-full home-map-container" />
+                    <div ref={mapContainer} className="home-map-container" />
                     <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-background/20" />
                     <Button 
                       className="absolute bottom-4 right-4 z-10"
