@@ -27,6 +27,9 @@ const Map = () => {
   const [mapInitialized, setMapInitialized] = useState(false);
   const [activeLayer, setActiveLayer] = useState("healthScores");
   const [showFilters, setShowFilters] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(() => 
+    document.documentElement.classList.contains("dark")
+  );
 
   // Save token to localStorage whenever it changes
   useEffect(() => {
@@ -34,6 +37,28 @@ const Map = () => {
       localStorage.setItem("mapbox_token", mapToken);
     }
   }, [mapToken]);
+
+  // Track theme changes
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          const isDark = document.documentElement.classList.contains('dark');
+          setIsDarkMode(isDark);
+          if (map.current) {
+            map.current.setStyle(isDark ? 
+              'mapbox://styles/mapbox/dark-v11' : 
+              'mapbox://styles/mapbox/light-v11'
+            );
+          }
+        }
+      });
+    });
+    
+    observer.observe(document.documentElement, { attributes: true });
+    
+    return () => observer.disconnect();
+  }, []);
 
   // Initialize map when token is available
   useEffect(() => {
@@ -47,7 +72,9 @@ const Map = () => {
       
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/dark-v11', // Use dark mode style
+        style: isDarkMode ? 
+          'mapbox://styles/mapbox/dark-v11' : 
+          'mapbox://styles/mapbox/light-v11',
         center: [-79.8711, 43.2557], // Hamilton, Ontario coordinates
         zoom: 12,
         pitch: 35,
@@ -169,7 +196,7 @@ const Map = () => {
             'circle-color': '#9b87f5', // Primary purple
             'circle-opacity': 0.8,
             'circle-stroke-width': 2,
-            'circle-stroke-color': '#1A1F2C' // Dark background
+            'circle-stroke-color': isDarkMode ? '#1A1F2C' : '#ffffff' // Theme-based outline
           }
         });
         
@@ -187,7 +214,7 @@ const Map = () => {
             'circle-color': '#ff6979', // Red for diabetes
             'circle-opacity': 0.8,
             'circle-stroke-width': 2,
-            'circle-stroke-color': '#1A1F2C' // Dark background
+            'circle-stroke-color': isDarkMode ? '#1A1F2C' : '#ffffff' // Theme-based outline
           },
           layout: {
             'visibility': 'none'
@@ -208,7 +235,7 @@ const Map = () => {
             'circle-color': '#D6BCFA', // Light purple for mental health
             'circle-opacity': 0.8,
             'circle-stroke-width': 2,
-            'circle-stroke-color': '#1A1F2C' // Dark background
+            'circle-stroke-color': isDarkMode ? '#1A1F2C' : '#ffffff' // Theme-based outline
           },
           layout: {
             'visibility': 'none'
@@ -229,7 +256,7 @@ const Map = () => {
             'circle-color': '#68D391', // Green for air quality
             'circle-opacity': 0.8,
             'circle-stroke-width': 2,
-            'circle-stroke-color': '#1A1F2C' // Dark background
+            'circle-stroke-color': isDarkMode ? '#1A1F2C' : '#ffffff' // Theme-based outline
           },
           layout: {
             'visibility': 'none'
@@ -272,7 +299,7 @@ const Map = () => {
         map.current = null;
       }
     };
-  }, [mapToken]);
+  }, [mapToken, isDarkMode]);
 
   // Function to show popup with health data
   const showPopup = (e: mapboxgl.MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] }) => {
@@ -281,9 +308,9 @@ const Map = () => {
     const coordinates = (e.features[0].geometry as any).coordinates.slice();
     const properties = e.features[0].properties;
     
-    // Create popup content with dark mode styling
+    // Create popup content with theme-sensitive styling
     const popupContent = document.createElement('div');
-    popupContent.className = 'p-2 text-sm bg-[#1A1F2C] text-white rounded-md border border-[#403E43]';
+    popupContent.className = 'p-2 text-sm rounded-md';
     popupContent.innerHTML = `
       <h3 class="font-bold text-base text-[#9b87f5]">${properties?.name}</h3>
       <div class="mt-2 space-y-1">
@@ -294,9 +321,9 @@ const Map = () => {
       </div>
     `;
     
-    // Create and display popup
+    // Create and display popup with appropriate theme class
     new mapboxgl.Popup({
-      className: 'dark-map-popup',
+      className: isDarkMode ? 'dark-map-popup' : 'light-map-popup',
       closeButton: true,
       closeOnClick: true,
       maxWidth: '300px'
@@ -323,7 +350,7 @@ const Map = () => {
   // Function to render filters
   const renderFilters = () => {
     return (
-      <div className="absolute top-16 right-6 z-10 bg-card/90 backdrop-blur-lg p-4 rounded-xl border border-border shadow-lg">
+      <div className="absolute bottom-6 right-6 z-10 bg-card/90 backdrop-blur-lg p-4 rounded-xl border border-border shadow-lg">
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-semibold">Map Layers</h3>
           <Button 

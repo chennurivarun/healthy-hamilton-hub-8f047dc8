@@ -104,6 +104,27 @@
   border-bottom-color: #1A1F2C;
 }
 
+/* Mapbox light mode customization */
+.mapboxgl-popup.light-map-popup .mapboxgl-popup-content {
+  background-color: #FFFFFF;
+  color: #222222;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.mapboxgl-popup.light-map-popup .mapboxgl-popup-close-button {
+  color: #222222;
+  font-size: 16px;
+  padding: 4px 8px;
+}
+
+.mapboxgl-popup.light-map-popup .mapboxgl-popup-tip {
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+}
+
 /* Animation improvements */
 .animate-fade-in {
   animation: fadeIn 0.5s ease-out forwards;
@@ -125,4 +146,18 @@
   transition: all 0.3s ease;
   backdrop-filter: blur(12px);
   background: hsla(var(--card) / 0.7);
+}
+
+/* Fix for map flickering */
+.mapboxgl-canvas {
+  outline: none !important;
+  position: absolute !important;
+}
+
+.mapboxgl-map {
+  position: absolute !important;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
 }

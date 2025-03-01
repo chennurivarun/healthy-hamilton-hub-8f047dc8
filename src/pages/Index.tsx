@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import MainLayout from "@/components/layout/MainLayout";
@@ -20,9 +19,38 @@ const Index = () => {
   const navigate = useNavigate();
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [mapToken] = useState<string>(() => {
-    return localStorage.getItem("mapbox_token") || "";
-  });
+  const [mapToken, setMapToken] = useState<string>("");
+  const [isDarkMode, setIsDarkMode] = useState(() => 
+    document.documentElement.classList.contains("dark")
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          const isDark = document.documentElement.classList.contains('dark');
+          setIsDarkMode(isDark);
+          if (map.current) {
+            map.current.setStyle(isDark ? 
+              'mapbox://styles/mapbox/dark-v11' : 
+              'mapbox://styles/mapbox/light-v11'
+            );
+          }
+        }
+      });
+    });
+    
+    observer.observe(document.documentElement, { attributes: true });
+    
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("mapbox_token");
+    if (storedToken) {
+      setMapToken(storedToken);
+    }
+  }, []);
 
   const metrics = [
     {
@@ -55,7 +83,6 @@ const Index = () => {
     },
   ];
 
-  // Initialize a simple preview map on homepage when token is available
   useEffect(() => {
     if (!mapToken || !mapContainer.current || map.current) return;
 
@@ -64,7 +91,9 @@ const Index = () => {
       
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/dark-v11',
+        style: isDarkMode ? 
+          'mapbox://styles/mapbox/dark-v11' : 
+          'mapbox://styles/mapbox/light-v11',
         center: [-79.8711, 43.2557], // Hamilton, Ontario coordinates
         zoom: 10,
         pitch: 40,
@@ -72,9 +101,7 @@ const Index = () => {
         attributionControl: false,
       });
 
-      // Add simple animation
       map.current.on('load', () => {
-        // Simple animation
         const rotateCamera = () => {
           if (!map.current) return;
           map.current.easeTo({
@@ -87,13 +114,11 @@ const Index = () => {
         
         rotateCamera();
         
-        // Add dummy health data for demonstration
         map.current.addSource('health-data', {
           type: 'geojson',
           data: {
             type: 'FeatureCollection',
             features: [
-              // Downtown Hamilton
               {
                 type: 'Feature',
                 properties: { 
@@ -105,7 +130,6 @@ const Index = () => {
                   coordinates: [-79.866, 43.256]
                 }
               },
-              // East Hamilton
               {
                 type: 'Feature',
                 properties: { 
@@ -117,7 +141,6 @@ const Index = () => {
                   coordinates: [-79.82, 43.24]
                 }
               },
-              // West Hamilton
               {
                 type: 'Feature',
                 properties: { 
@@ -129,7 +152,6 @@ const Index = () => {
                   coordinates: [-79.91, 43.26]
                 }
               },
-              // More locations
               {
                 type: 'Feature',
                 properties: { 
@@ -156,7 +178,6 @@ const Index = () => {
           }
         });
         
-        // Add a simple visualization layer
         map.current.addLayer({
           id: 'health-circles',
           type: 'circle',
@@ -170,7 +191,7 @@ const Index = () => {
             'circle-color': '#9b87f5',
             'circle-opacity': 0.7,
             'circle-stroke-width': 1,
-            'circle-stroke-color': '#1A1F2C'
+            'circle-stroke-color': isDarkMode ? '#1A1F2C' : '#FFFFFF'
           }
         });
       });
@@ -184,7 +205,7 @@ const Index = () => {
         map.current = null;
       }
     };
-  }, [mapToken]);
+  }, [mapToken, isDarkMode]);
 
   return (
     <MainLayout>
@@ -252,7 +273,6 @@ const Index = () => {
                 </div>
               </div>
               
-              {/* Stylized minimal chart */}
               <div className="mt-4 h-10 flex items-end justify-between">
                 {[...Array(8)].map((_, i) => (
                   <div 
@@ -361,8 +381,8 @@ const Index = () => {
                           width: `${30 + Math.random() * 60}%`,
                           opacity: 0.8,
                           backgroundColor: index === 0 ? '#ff6979' : 
-                                           index === 1 ? '#D6BCFA' : 
-                                           index === 2 ? '#68D391' : '#9b87f5'
+                                          index === 1 ? '#D6BCFA' : 
+                                          index === 2 ? '#68D391' : '#9b87f5'
                         }}
                       />
                     </div>
