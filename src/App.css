@@ -75,3 +75,54 @@
 .data-point-active {
   @apply fill-primary stroke-card stroke-2;
 }
+
+/* Fix for icons and tooltips */
+.side-nav-item-icon,
+.info-icon,
+.feature-tag {
+  opacity: 1 !important;
+}
+
+/* Mapbox dark mode customization */
+.mapboxgl-popup.dark-map-popup .mapboxgl-popup-content {
+  background-color: #1A1F2C;
+  color: white;
+  border: 1px solid #403E43;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.mapboxgl-popup.dark-map-popup .mapboxgl-popup-close-button {
+  color: white;
+  font-size: 16px;
+  padding: 4px 8px;
+}
+
+.mapboxgl-popup.dark-map-popup .mapboxgl-popup-tip {
+  border-top-color: #1A1F2C;
+  border-bottom-color: #1A1F2C;
+}
+
+/* Animation improvements */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Smooth transitions */
+.glass {
+  transition: all 0.3s ease;
+  backdrop-filter: blur(12px);
+  background: hsla(var(--card) / 0.7);
+}

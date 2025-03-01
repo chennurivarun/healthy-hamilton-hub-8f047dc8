@@ -15,6 +15,7 @@ import { features } from "@/components/layout/MainLayout";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { Input } from "@/components/ui/input";
+import { toast } from "@/components/ui/use-toast";
 
 const Map = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -25,6 +26,7 @@ const Map = () => {
   const [showToken, setShowToken] = useState(false);
   const [mapInitialized, setMapInitialized] = useState(false);
   const [activeLayer, setActiveLayer] = useState("healthScores");
+  const [showFilters, setShowFilters] = useState(true);
 
   // Save token to localStorage whenever it changes
   useEffect(() => {
@@ -35,17 +37,21 @@ const Map = () => {
 
   // Initialize map when token is available
   useEffect(() => {
-    if (!mapToken || !mapContainer.current || mapInitialized) return;
+    if (!mapToken || !mapContainer.current) return;
+    
+    // Don't re-initialize if map already exists
+    if (map.current) return;
 
     try {
       mapboxgl.accessToken = mapToken;
       
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/light-v11',
+        style: 'mapbox://styles/mapbox/dark-v11', // Use dark mode style
         center: [-79.8711, 43.2557], // Hamilton, Ontario coordinates
         zoom: 12,
         pitch: 35,
+        preserveDrawingBuffer: true, // Helps with performance
       });
 
       // Add navigation controls
@@ -59,6 +65,10 @@ const Map = () => {
       // When map loads, add data layers
       map.current.on('load', () => {
         setMapInitialized(true);
+        toast({
+          title: "Map loaded successfully",
+          description: "Health data visualizations are now available",
+        });
         
         // Add dummy health data for demonstration
         map.current.addSource('health-data', {
@@ -145,7 +155,7 @@ const Map = () => {
           }
         });
         
-        // Add health scores layer
+        // Add health scores layer with updated colors for dark mode
         map.current.addLayer({
           id: 'healthScores',
           type: 'circle',
@@ -156,14 +166,14 @@ const Map = () => {
               60, 15,
               90, 25
             ],
-            'circle-color': 'hsl(var(--primary))',
-            'circle-opacity': 0.7,
+            'circle-color': '#9b87f5', // Primary purple
+            'circle-opacity': 0.8,
             'circle-stroke-width': 2,
-            'circle-stroke-color': 'hsl(var(--background))'
+            'circle-stroke-color': '#1A1F2C' // Dark background
           }
         });
         
-        // Add diabetes layer (initially hidden)
+        // Add diabetes layer with updated colors for dark mode
         map.current.addLayer({
           id: 'diabetesRates',
           type: 'circle',
@@ -174,17 +184,17 @@ const Map = () => {
               8, 15,
               16, 25
             ],
-            'circle-color': 'hsl(0, 100%, 60%)', // Red for diabetes
-            'circle-opacity': 0.7,
+            'circle-color': '#ff6979', // Red for diabetes
+            'circle-opacity': 0.8,
             'circle-stroke-width': 2,
-            'circle-stroke-color': 'hsl(var(--background))'
+            'circle-stroke-color': '#1A1F2C' // Dark background
           },
           layout: {
             'visibility': 'none'
           }
         });
         
-        // Add mental health layer (initially hidden)
+        // Add mental health layer with updated colors for dark mode
         map.current.addLayer({
           id: 'mentalHealth',
           type: 'circle',
@@ -195,17 +205,17 @@ const Map = () => {
               60, 15,
               85, 25
             ],
-            'circle-color': 'hsl(270, 100%, 70%)', // Purple for mental health
-            'circle-opacity': 0.7,
+            'circle-color': '#D6BCFA', // Light purple for mental health
+            'circle-opacity': 0.8,
             'circle-stroke-width': 2,
-            'circle-stroke-color': 'hsl(var(--background))'
+            'circle-stroke-color': '#1A1F2C' // Dark background
           },
           layout: {
             'visibility': 'none'
           }
         });
         
-        // Add air quality layer (initially hidden)
+        // Add air quality layer with updated colors for dark mode
         map.current.addLayer({
           id: 'airQuality',
           type: 'circle',
@@ -216,50 +226,53 @@ const Map = () => {
               60, 15,
               80, 25
             ],
-            'circle-color': 'hsl(120, 100%, 40%)', // Green for air quality
-            'circle-opacity': 0.7,
+            'circle-color': '#68D391', // Green for air quality
+            'circle-opacity': 0.8,
             'circle-stroke-width': 2,
-            'circle-stroke-color': 'hsl(var(--background))'
+            'circle-stroke-color': '#1A1F2C' // Dark background
           },
           layout: {
             'visibility': 'none'
           }
         });
         
-        // Add popups
-        map.current.on('click', 'healthScores', (e) => {
-          showPopup(e);
-        });
-        map.current.on('click', 'diabetesRates', (e) => {
-          showPopup(e);
-        });
-        map.current.on('click', 'mentalHealth', (e) => {
-          showPopup(e);
-        });
-        map.current.on('click', 'airQuality', (e) => {
-          showPopup(e);
-        });
+        // Add popups with improved styling
+        const setupClickHandlers = (layerId: string) => {
+          map.current?.on('click', layerId, (e) => {
+            showPopup(e);
+          });
+          
+          map.current?.on('mouseenter', layerId, () => {
+            if (map.current) map.current.getCanvas().style.cursor = 'pointer';
+          });
+          
+          map.current?.on('mouseleave', layerId, () => {
+            if (map.current) map.current.getCanvas().style.cursor = '';
+          });
+        };
         
-        // Change cursor on hover
-        map.current.on('mouseenter', 'healthScores', () => {
-          if (map.current) map.current.getCanvas().style.cursor = 'pointer';
-        });
-        map.current.on('mouseleave', 'healthScores', () => {
-          if (map.current) map.current.getCanvas().style.cursor = '';
-        });
+        // Apply click handlers to all layers
+        setupClickHandlers('healthScores');
+        setupClickHandlers('diabetesRates');
+        setupClickHandlers('mentalHealth');
+        setupClickHandlers('airQuality');
       });
     } catch (error) {
       console.error("Error initializing map:", error);
+      toast({
+        title: "Error loading map",
+        description: "Please check your Mapbox token and try again",
+        variant: "destructive",
+      });
     }
 
     return () => {
       if (map.current) {
         map.current.remove();
         map.current = null;
-        setMapInitialized(false);
       }
     };
-  }, [mapToken, mapInitialized]);
+  }, [mapToken]);
 
   // Function to show popup with health data
   const showPopup = (e: mapboxgl.MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] }) => {
@@ -268,11 +281,11 @@ const Map = () => {
     const coordinates = (e.features[0].geometry as any).coordinates.slice();
     const properties = e.features[0].properties;
     
-    // Create popup content
+    // Create popup content with dark mode styling
     const popupContent = document.createElement('div');
-    popupContent.className = 'p-2 text-sm';
+    popupContent.className = 'p-2 text-sm bg-[#1A1F2C] text-white rounded-md border border-[#403E43]';
     popupContent.innerHTML = `
-      <h3 class="font-bold text-base">${properties?.name}</h3>
+      <h3 class="font-bold text-base text-[#9b87f5]">${properties?.name}</h3>
       <div class="mt-2 space-y-1">
         <div>Health Score: <span class="font-medium">${properties?.healthScore}</span></div>
         <div>Diabetes Rate: <span class="font-medium">${properties?.diabetesRate}%</span></div>
@@ -282,7 +295,12 @@ const Map = () => {
     `;
     
     // Create and display popup
-    new mapboxgl.Popup()
+    new mapboxgl.Popup({
+      className: 'dark-map-popup',
+      closeButton: true,
+      closeOnClick: true,
+      maxWidth: '300px'
+    })
       .setLngLat(coordinates)
       .setDOMContent(popupContent)
       .addTo(map.current);
@@ -305,42 +323,55 @@ const Map = () => {
   // Function to render filters
   const renderFilters = () => {
     return (
-      <div className="absolute top-16 right-6 z-10 bg-card/80 backdrop-blur-md p-4 rounded-xl border border-border/50 shadow-md">
-        <h3 className="font-semibold mb-2">Map Layers</h3>
-        <div className="space-y-2">
+      <div className="absolute top-16 right-6 z-10 bg-card/90 backdrop-blur-lg p-4 rounded-xl border border-border shadow-lg">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="font-semibold">Map Layers</h3>
           <Button 
-            variant={activeLayer === 'healthScores' ? "default" : "outline"} 
-            size="sm" 
-            className="w-full justify-start"
-            onClick={() => toggleLayer('healthScores')}
+            variant="ghost" 
+            size="icon"
+            onClick={() => setShowFilters(!showFilters)}
+            className="h-6 w-6"
           >
-            Health Scores
-          </Button>
-          <Button 
-            variant={activeLayer === 'diabetesRates' ? "default" : "outline"} 
-            size="sm" 
-            className="w-full justify-start"
-            onClick={() => toggleLayer('diabetesRates')}
-          >
-            Diabetes Rates
-          </Button>
-          <Button 
-            variant={activeLayer === 'mentalHealth' ? "default" : "outline"} 
-            size="sm" 
-            className="w-full justify-start"
-            onClick={() => toggleLayer('mentalHealth')}
-          >
-            Mental Health
-          </Button>
-          <Button 
-            variant={activeLayer === 'airQuality' ? "default" : "outline"} 
-            size="sm" 
-            className="w-full justify-start"
-            onClick={() => toggleLayer('airQuality')}
-          >
-            Air Quality
+            <Info className="h-3.5 w-3.5" />
           </Button>
         </div>
+        
+        {showFilters && (
+          <div className="space-y-2">
+            <Button 
+              variant={activeLayer === 'healthScores' ? "default" : "outline"} 
+              size="sm" 
+              className="w-full justify-start"
+              onClick={() => toggleLayer('healthScores')}
+            >
+              Health Scores
+            </Button>
+            <Button 
+              variant={activeLayer === 'diabetesRates' ? "default" : "outline"} 
+              size="sm" 
+              className="w-full justify-start"
+              onClick={() => toggleLayer('diabetesRates')}
+            >
+              Diabetes Rates
+            </Button>
+            <Button 
+              variant={activeLayer === 'mentalHealth' ? "default" : "outline"} 
+              size="sm" 
+              className="w-full justify-start"
+              onClick={() => toggleLayer('mentalHealth')}
+            >
+              Mental Health
+            </Button>
+            <Button 
+              variant={activeLayer === 'airQuality' ? "default" : "outline"} 
+              size="sm" 
+              className="w-full justify-start"
+              onClick={() => toggleLayer('airQuality')}
+            >
+              Air Quality
+            </Button>
+          </div>
+        )}
       </div>
     );
   };
@@ -381,7 +412,7 @@ const Map = () => {
               <TooltipProvider>
                 <Tooltip delayDuration={0}>
                   <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" onClick={() => renderFilters()}>
+                    <Button variant="ghost" size="icon" onClick={() => setShowFilters(!showFilters)}>
                       <Layers className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
@@ -430,7 +461,13 @@ const Map = () => {
                       {showToken ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
                   </div>
-                  <Button onClick={() => setMapInitialized(false)}>
+                  <Button onClick={() => { 
+                    if (map.current) {
+                      map.current.remove();
+                      map.current = null;
+                    }
+                    setMapInitialized(false);
+                  }}>
                     Load Map
                   </Button>
                 </div>
@@ -468,15 +505,15 @@ const Map = () => {
                 {activeLayer === 'healthScores' && (
                   <>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: 'hsl(var(--primary))' }} />
+                      <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: '#9b87f5' }} />
                       <span>High Health Score</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: 'hsl(var(--primary))' }} />
+                      <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: '#9b87f5' }} />
                       <span>Medium Health Score</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-30" style={{ backgroundColor: 'hsl(var(--primary))' }} />
+                      <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: '#9b87f5' }} />
                       <span>Low Health Score</span>
                     </div>
                   </>
@@ -485,15 +522,15 @@ const Map = () => {
                 {activeLayer === 'diabetesRates' && (
                   <>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: 'hsl(0, 100%, 60%)' }} />
+                      <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: '#ff6979' }} />
                       <span>High Diabetes Rate</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: 'hsl(0, 100%, 60%)' }} />
+                      <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: '#ff6979' }} />
                       <span>Medium Diabetes Rate</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-30" style={{ backgroundColor: 'hsl(0, 100%, 60%)' }} />
+                      <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: '#ff6979' }} />
                       <span>Low Diabetes Rate</span>
                     </div>
                   </>
@@ -502,15 +539,15 @@ const Map = () => {
                 {activeLayer === 'mentalHealth' && (
                   <>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: 'hsl(270, 100%, 70%)' }} />
+                      <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: '#D6BCFA' }} />
                       <span>High Mental Health Score</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: 'hsl(270, 100%, 70%)' }} />
+                      <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: '#D6BCFA' }} />
                       <span>Medium Mental Health Score</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-30" style={{ backgroundColor: 'hsl(270, 100%, 70%)' }} />
+                      <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: '#D6BCFA' }} />
                       <span>Low Mental Health Score</span>
                     </div>
                   </>
@@ -519,15 +556,15 @@ const Map = () => {
                 {activeLayer === 'airQuality' && (
                   <>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: 'hsl(120, 100%, 40%)' }} />
+                      <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: '#68D391' }} />
                       <span>High Air Quality</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: 'hsl(120, 100%, 40%)' }} />
+                      <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: '#68D391' }} />
                       <span>Medium Air Quality</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-30" style={{ backgroundColor: 'hsl(120, 100%, 40%)' }} />
+                      <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: '#68D391' }} />
                       <span>Low Air Quality</span>
                     </div>
                   </>

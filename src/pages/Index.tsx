@@ -1,7 +1,8 @@
+
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import MainLayout from "@/components/layout/MainLayout";
-import { Activity, Users, AlertTriangle, TrendingUp, Info, LineChart, BarChart } from "lucide-react";
+import { Activity, Users, AlertTriangle, TrendingUp, Info, LineChart, BarChart, Map as MapIcon } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -9,8 +10,20 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { features } from "@/components/layout/MainLayout";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
+  const navigate = useNavigate();
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
+  const [mapToken] = useState<string>(() => {
+    return localStorage.getItem("mapbox_token") || "";
+  });
+
   const metrics = [
     {
       title: "Diabetes Prevalence",
@@ -41,6 +54,137 @@ const Index = () => {
       feature: features.employmentCenters,
     },
   ];
+
+  // Initialize a simple preview map on homepage when token is available
+  useEffect(() => {
+    if (!mapToken || !mapContainer.current || map.current) return;
+
+    try {
+      mapboxgl.accessToken = mapToken;
+      
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/dark-v11',
+        center: [-79.8711, 43.2557], // Hamilton, Ontario coordinates
+        zoom: 10,
+        pitch: 40,
+        interactive: false, // Disable interactions for preview
+        attributionControl: false,
+      });
+
+      // Add simple animation
+      map.current.on('load', () => {
+        // Simple animation
+        const rotateCamera = () => {
+          if (!map.current) return;
+          map.current.easeTo({
+            bearing: map.current.getBearing() + 0.2,
+            duration: 100,
+            easing: (t) => t,
+          });
+          requestAnimationFrame(rotateCamera);
+        };
+        
+        rotateCamera();
+        
+        // Add dummy health data for demonstration
+        map.current.addSource('health-data', {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: [
+              // Downtown Hamilton
+              {
+                type: 'Feature',
+                properties: { 
+                  name: 'Downtown Hamilton',
+                  healthScore: 85,
+                },
+                geometry: {
+                  type: 'Point',
+                  coordinates: [-79.866, 43.256]
+                }
+              },
+              // East Hamilton
+              {
+                type: 'Feature',
+                properties: { 
+                  name: 'East Hamilton',
+                  healthScore: 72,
+                },
+                geometry: {
+                  type: 'Point',
+                  coordinates: [-79.82, 43.24]
+                }
+              },
+              // West Hamilton
+              {
+                type: 'Feature',
+                properties: { 
+                  name: 'West Hamilton',
+                  healthScore: 91,
+                },
+                geometry: {
+                  type: 'Point',
+                  coordinates: [-79.91, 43.26]
+                }
+              },
+              // More locations
+              {
+                type: 'Feature',
+                properties: { 
+                  name: 'Mountain Area',
+                  healthScore: 78,
+                },
+                geometry: {
+                  type: 'Point',
+                  coordinates: [-79.85, 43.21]
+                }
+              },
+              {
+                type: 'Feature',
+                properties: { 
+                  name: 'Stoney Creek',
+                  healthScore: 83,
+                },
+                geometry: {
+                  type: 'Point',
+                  coordinates: [-79.77, 43.22]
+                }
+              }
+            ]
+          }
+        });
+        
+        // Add a simple visualization layer
+        map.current.addLayer({
+          id: 'health-circles',
+          type: 'circle',
+          source: 'health-data',
+          paint: {
+            'circle-radius': [
+              'interpolate', ['linear'], ['get', 'healthScore'],
+              60, 10,
+              90, 18
+            ],
+            'circle-color': '#9b87f5',
+            'circle-opacity': 0.7,
+            'circle-stroke-width': 1,
+            'circle-stroke-color': '#1A1F2C'
+          }
+        });
+      });
+    } catch (error) {
+      console.error("Error initializing preview map:", error);
+    }
+
+    return () => {
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
+    };
+  }, [mapToken]);
 
   return (
     <MainLayout>
@@ -149,11 +293,33 @@ const Index = () => {
             </div>
             <div className="p-6">
               <div className="flex items-center gap-2 mb-4">
-                <LineChart className="h-5 w-5 text-primary" />
+                <MapIcon className="h-5 w-5 text-primary" />
                 <h3 className="text-lg font-semibold">Community Health Map</h3>
               </div>
-              <div className="h-[calc(100%-48px)] rounded-xl bg-secondary/30 flex items-center justify-center overflow-hidden map-container">
-                <div className="text-muted-foreground">Map Preview (Coming Soon)</div>
+              <div className="h-[calc(100%-48px)] rounded-xl overflow-hidden relative">
+                {mapToken ? (
+                  <>
+                    <div ref={mapContainer} className="absolute inset-0 w-full h-full" />
+                    <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-background/20" />
+                    <Button 
+                      className="absolute bottom-4 right-4 z-10"
+                      onClick={() => navigate('/map')}
+                    >
+                      View Full Map
+                    </Button>
+                  </>
+                ) : (
+                  <div className="h-full bg-secondary/30 flex items-center justify-center">
+                    <div className="text-center max-w-xs mx-auto">
+                      <p className="text-muted-foreground mb-4">
+                        Enter your Mapbox API token in the Map section to enable the interactive map
+                      </p>
+                      <Button onClick={() => navigate('/map')}>
+                        Set Up Map
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </Card>
@@ -190,10 +356,13 @@ const Index = () => {
                     <div className="text-sm text-muted-foreground w-32">{item}</div>
                     <div className="flex-1 h-2 bg-secondary/50 rounded-full overflow-hidden">
                       <div 
-                        className="h-full bg-primary rounded-full"
+                        className="h-full rounded-full"
                         style={{ 
                           width: `${30 + Math.random() * 60}%`,
-                          opacity: 0.7 + (index * 0.1)
+                          opacity: 0.8,
+                          backgroundColor: index === 0 ? '#ff6979' : 
+                                           index === 1 ? '#D6BCFA' : 
+                                           index === 2 ? '#68D391' : '#9b87f5'
                         }}
                       />
                     </div>
