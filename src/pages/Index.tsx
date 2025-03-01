@@ -1,7 +1,8 @@
+
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import MainLayout from "@/components/layout/MainLayout";
-import { Activity, Users, AlertTriangle, TrendingUp, Info, LineChart, BarChart, Map as MapIcon } from "lucide-react";
+import { Activity, Users, AlertTriangle, TrendingUp, Info, LineChart, BarChart, MapIcon } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -83,6 +84,7 @@ const Index = () => {
     },
   ];
 
+  // Initialize and render map
   useEffect(() => {
     if (!mapToken || !mapContainer.current || map.current) return;
 
@@ -102,6 +104,9 @@ const Index = () => {
       });
 
       map.current.on('load', () => {
+        if (!map.current) return;
+        
+        // Slow rotation animation for preview
         const rotateCamera = () => {
           if (!map.current) return;
           map.current.easeTo({
@@ -114,6 +119,7 @@ const Index = () => {
         
         rotateCamera();
         
+        // Add example health data
         map.current.addSource('health-data', {
           type: 'geojson',
           data: {
@@ -178,6 +184,7 @@ const Index = () => {
           }
         });
         
+        // Add layer with matching colors to the Map page
         map.current.addLayer({
           id: 'health-circles',
           type: 'circle',
@@ -319,7 +326,7 @@ const Index = () => {
               <div className="h-[calc(100%-48px)] rounded-xl overflow-hidden relative">
                 {mapToken ? (
                   <>
-                    <div ref={mapContainer} className="absolute inset-0 w-full h-full" />
+                    <div ref={mapContainer} className="absolute inset-0 w-full h-full home-map-container" />
                     <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent to-background/20" />
                     <Button 
                       className="absolute bottom-4 right-4 z-10"
