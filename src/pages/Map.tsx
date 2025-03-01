@@ -494,6 +494,11 @@ const Map = () => {
                       map.current = null;
                     }
                     setMapInitialized(false);
+                    if (mapToken) {
+                      localStorage.setItem("mapbox_token", mapToken); // Ensure token is saved
+                      setMapToken(""); // Temporarily clear to trigger useEffect
+                      setTimeout(() => setMapToken(mapToken), 0); // Re-set token to trigger map init
+                    }
                   }}>
                     Load Map
                   </Button>

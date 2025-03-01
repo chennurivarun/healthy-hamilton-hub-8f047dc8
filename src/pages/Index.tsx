@@ -47,6 +47,7 @@ const Index = () => {
 
   useEffect(() => {
     const storedToken = localStorage.getItem("mapbox_token");
+    console.log("Retrieved token:", storedToken); // Debug log
     if (storedToken) {
       setMapToken(storedToken);
       console.log("Mapbox token found in localStorage");
