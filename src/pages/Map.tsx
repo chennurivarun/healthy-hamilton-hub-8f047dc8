@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import MainLayout from "@/components/layout/MainLayout";
@@ -821,7 +822,7 @@ const Map = () => {
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: mapFeatures.diabetesRates.color }} />
-                      <span className="text-sm">High Diabetes Rate (>15%)</span>
+                      <span className="text-sm">High Diabetes Rate (&gt;15%)</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: mapFeatures.diabetesRates.color }} />
@@ -829,7 +830,7 @@ const Map = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: mapFeatures.diabetesRates.color }} />
-                      <span className="text-sm">Low Diabetes Rate (<10%)</span>
+                      <span className="text-sm">Low Diabetes Rate (&lt;10%)</span>
                     </div>
                   </div>
                 )}
@@ -838,7 +839,7 @@ const Map = () => {
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: mapFeatures.mentalHealth.color }} />
-                      <span className="text-sm">High Mental Health Score (>80)</span>
+                      <span className="text-sm">High Mental Health Score (&gt;80)</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: mapFeatures.mentalHealth.color }} />
@@ -846,7 +847,7 @@ const Map = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: mapFeatures.mentalHealth.color }} />
-                      <span className="text-sm">Low Mental Health Score (<70)</span>
+                      <span className="text-sm">Low Mental Health Score (&lt;70)</span>
                     </div>
                   </div>
                 )}
@@ -855,7 +856,7 @@ const Map = () => {
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: mapFeatures.airQuality.color }} />
-                      <span className="text-sm">High Air Quality (>75)</span>
+                      <span className="text-sm">High Air Quality (&gt;75)</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: mapFeatures.airQuality.color }} />
@@ -863,7 +864,7 @@ const Map = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: mapFeatures.airQuality.color }} />
-                      <span className="text-sm">Low Air Quality (<65)</span>
+                      <span className="text-sm">Low Air Quality (&lt;65)</span>
                     </div>
                   </div>
                 )}
