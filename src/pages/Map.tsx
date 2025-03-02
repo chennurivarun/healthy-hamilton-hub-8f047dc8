@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import MainLayout from "@/components/layout/MainLayout";
-import { MapPin, Layers, Filter, Info, Eye, EyeOff } from "lucide-react";
+import { MapPin, Layers, Filter, Info, Eye, EyeOff, Expand, Minimize, Search, Clock, Navigation, Database, Map as MapIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -16,6 +16,79 @@ import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
+import { Link } from "react-router-dom";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+// Define available map features
+const mapFeatures = {
+  healthScores: {
+    id: 'healthScores',
+    name: 'Health Scores',
+    description: 'Overall health score metric for each area',
+    color: '#9b87f5',
+    icon: <MapIcon className="h-4 w-4" />
+  },
+  diabetesRates: {
+    id: 'diabetesRates',
+    name: 'Diabetes Rates',
+    description: 'Prevalence of diabetes by neighborhood',
+    color: '#ff6979',
+    icon: <MapIcon className="h-4 w-4" />
+  },
+  mentalHealth: {
+    id: 'mentalHealth',
+    name: 'Mental Health',
+    description: 'Mental health metrics by area',
+    color: '#D6BCFA',
+    icon: <MapIcon className="h-4 w-4" />
+  },
+  airQuality: {
+    id: 'airQuality',
+    name: 'Air Quality',
+    description: 'Air quality index measurements',
+    color: '#68D391',
+    icon: <MapIcon className="h-4 w-4" />
+  }
+};
+
+// Define advanced feature categories
+const advancedFeatures = [
+  {
+    id: 'search',
+    name: 'Location Search',
+    icon: <Search className="h-4 w-4" />,
+    description: 'Search for addresses and places'
+  },
+  {
+    id: 'isochrone',
+    name: 'Accessibility Analysis',
+    icon: <Clock className="h-4 w-4" />,
+    description: 'See areas reachable within a time range'
+  },
+  {
+    id: 'directions',
+    name: 'Directions',
+    icon: <Navigation className="h-4 w-4" />,
+    description: 'Get routes to health facilities'
+  },
+  {
+    id: 'datasets',
+    name: 'Custom Datasets',
+    icon: <Database className="h-4 w-4" />,
+    description: 'Upload and visualize custom health data'
+  }
+];
 
 const Map = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -30,7 +103,19 @@ const Map = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => 
     document.documentElement.classList.contains("dark")
   );
-
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showLayersPanel, setShowLayersPanel] = useState(true);
+  const [showAdvancedPanel, setShowAdvancedPanel] = useState(false);
+  const [advancedFeatureStatus, setAdvancedFeatureStatus] = useState({
+    search: false,
+    isochrone: false,
+    directions: false,
+    datasets: false
+  });
+  
+  // Geocoder ref for search functionality
+  const geocoder = useRef<any>(null);
+  
   // Save token to localStorage whenever it changes
   useEffect(() => {
     if (mapToken) {
@@ -60,16 +145,273 @@ const Map = () => {
     return () => observer.disconnect();
   }, []);
 
+  // Toggle fullscreen mode
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+    setTimeout(() => {
+      if (map.current) {
+        map.current.resize();
+      }
+    }, 100);
+  };
+
+  // Function to add geocoder search
+  const addGeocoder = () => {
+    if (!map.current || !mapboxgl.accessToken) return;
+    
+    try {
+      // Use dynamic import to avoid bundling issues
+      import('@mapbox/mapbox-gl-geocoder').then(({ default: MapboxGeocoder }) => {
+        if (!map.current) return;
+        
+        // Remove existing geocoder if any
+        if (geocoder.current) {
+          map.current.removeControl(geocoder.current);
+        }
+        
+        // Create new geocoder
+        geocoder.current = new MapboxGeocoder({
+          accessToken: mapboxgl.accessToken,
+          mapboxgl: mapboxgl,
+          marker: {
+            color: '#9b87f5'
+          },
+          placeholder: 'Search for locations'
+        });
+        
+        // Add geocoder to map
+        map.current.addControl(geocoder.current, 'top-left');
+        
+        toast({
+          title: "Search activated",
+          description: "You can now search for addresses and locations",
+        });
+      }).catch(err => {
+        console.error("Error loading geocoder:", err);
+        toast({
+          title: "Error activating search",
+          description: "Could not load the search module",
+          variant: "destructive",
+        });
+      });
+    } catch (error) {
+      console.error("Error setting up geocoder:", error);
+    }
+  };
+  
+  // Function to enable/disable isochrone feature
+  const toggleIsochrone = () => {
+    const isEnabled = !advancedFeatureStatus.isochrone;
+    setAdvancedFeatureStatus({...advancedFeatureStatus, isochrone: isEnabled});
+    
+    if (!map.current) return;
+    
+    if (isEnabled) {
+      // Set up click listener for isochrone generation
+      map.current.on('click', 'isochrone-click', (e) => {
+        if (!map.current) return;
+        const coords = e.lngLat;
+        
+        toast({
+          title: "Generating accessibility zones",
+          description: "Calculating areas within 15 minutes...",
+        });
+        
+        // Simulate isochrone calculation (in a real app, this would call the Mapbox Isochrone API)
+        setTimeout(() => {
+          if (!map.current) return;
+          
+          // Generate a simple circle as a placeholder for isochrone
+          const center = [coords.lng, coords.lat];
+          const radius = 0.02; // Roughly 2km
+          const options = { steps: 50, units: 'kilometers' as const };
+          
+          try {
+            import('@turf/turf').then((turf) => {
+              const circle = turf.circle(center, radius, options);
+              
+              // Add source if it doesn't exist
+              if (!map.current?.getSource('isochrone')) {
+                map.current?.addSource('isochrone', {
+                  type: 'geojson',
+                  data: {
+                    type: 'FeatureCollection',
+                    features: [circle]
+                  }
+                });
+                
+                // Add fill layer
+                map.current?.addLayer({
+                  id: 'isochrone-fill',
+                  type: 'fill',
+                  source: 'isochrone',
+                  paint: {
+                    'fill-color': '#9b87f5',
+                    'fill-opacity': 0.2
+                  }
+                });
+                
+                // Add outline layer
+                map.current?.addLayer({
+                  id: 'isochrone-outline',
+                  type: 'line',
+                  source: 'isochrone',
+                  paint: {
+                    'line-color': '#9b87f5',
+                    'line-width': 2
+                  }
+                });
+              } else {
+                // Update existing source
+                (map.current?.getSource('isochrone') as mapboxgl.GeoJSONSource).setData({
+                  type: 'FeatureCollection',
+                  features: [circle]
+                });
+              }
+              
+              toast({
+                title: "Accessibility zone created",
+                description: "Showing area within approximately 15 minutes walking distance",
+              });
+            });
+          } catch (error) {
+            console.error("Error generating isochrone:", error);
+            toast({
+              title: "Error creating accessibility zone",
+              description: "Could not generate the accessibility visualization",
+              variant: "destructive",
+            });
+          }
+        }, 1000);
+      });
+      
+      toast({
+        title: "Accessibility analysis activated",
+        description: "Click anywhere on the map to see reachable areas",
+      });
+    } else {
+      // Remove isochrone layers and listener
+      map.current.off('click', 'isochrone-click');
+      
+      if (map.current.getLayer('isochrone-fill')) {
+        map.current.removeLayer('isochrone-fill');
+      }
+      
+      if (map.current.getLayer('isochrone-outline')) {
+        map.current.removeLayer('isochrone-outline');
+      }
+      
+      if (map.current.getSource('isochrone')) {
+        map.current.removeSource('isochrone');
+      }
+      
+      toast({
+        title: "Accessibility analysis deactivated",
+        description: "Accessibility zones have been removed from the map",
+      });
+    }
+  };
+  
+  // Toggle directions feature
+  const toggleDirections = () => {
+    const isEnabled = !advancedFeatureStatus.directions;
+    setAdvancedFeatureStatus({...advancedFeatureStatus, directions: isEnabled});
+    
+    if (!map.current) return;
+    
+    if (isEnabled) {
+      try {
+        // Use dynamic import for Directions control
+        import('@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions').then(({ default: MapboxDirections }) => {
+          if (!map.current) return;
+          
+          // Add directions control
+          const directionsControl = new MapboxDirections({
+            accessToken: mapboxgl.accessToken,
+            unit: 'metric',
+            profile: 'mapbox/walking',
+            alternatives: true,
+            congestion: true,
+            controls: {
+              profileSwitcher: true,
+              instructions: true
+            }
+          });
+          
+          map.current.addControl(directionsControl, 'top-left');
+          
+          // Store the control for later removal
+          (map.current as any)._directionsControl = directionsControl;
+          
+          toast({
+            title: "Directions activated",
+            description: "You can now get routes to health facilities",
+          });
+        }).catch(err => {
+          console.error("Error loading directions:", err);
+          setAdvancedFeatureStatus({...advancedFeatureStatus, directions: false});
+          toast({
+            title: "Error activating directions",
+            description: "Could not load the directions module",
+            variant: "destructive",
+          });
+        });
+      } catch (error) {
+        console.error("Error setting up directions:", error);
+        setAdvancedFeatureStatus({...advancedFeatureStatus, directions: false});
+      }
+    } else {
+      // Remove directions control if it exists
+      if (map.current && (map.current as any)._directionsControl) {
+        map.current.removeControl((map.current as any)._directionsControl);
+        (map.current as any)._directionsControl = null;
+        
+        toast({
+          title: "Directions deactivated",
+          description: "Direction controls have been removed",
+        });
+      }
+    }
+  };
+  
+  // Toggle custom datasets feature
+  const toggleDatasets = () => {
+    const isEnabled = !advancedFeatureStatus.datasets;
+    setAdvancedFeatureStatus({...advancedFeatureStatus, datasets: isEnabled});
+    
+    if (isEnabled) {
+      toast({
+        title: "Custom datasets feature activated",
+        description: "This feature would allow uploading and managing custom health data",
+      });
+    } else {
+      toast({
+        title: "Custom datasets feature deactivated",
+        description: "Custom dataset functionality has been disabled",
+      });
+    }
+  };
+
   // Initialize map when token is available
   useEffect(() => {
-    if (!mapToken || !mapContainer.current) return;
+    console.log("Map initialization effect running, token:", mapToken ? "exists" : "missing");
+    
+    if (!mapToken || !mapContainer.current) {
+      console.log("Map cannot initialize: token or container missing");
+      return;
+    }
     
     // Don't re-initialize if map already exists
-    if (map.current) return;
+    if (map.current) {
+      console.log("Map already exists, skipping initialization");
+      return;
+    }
 
     try {
+      console.log("Starting map initialization with token");
       mapboxgl.accessToken = mapToken;
       
+      console.log("Creating map instance");
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: isDarkMode ? 
@@ -81,6 +423,7 @@ const Map = () => {
         preserveDrawingBuffer: true, // Helps with performance
       });
 
+      console.log("Adding navigation controls");
       // Add navigation controls
       map.current.addControl(
         new mapboxgl.NavigationControl({
@@ -89,14 +432,17 @@ const Map = () => {
         'top-right'
       );
 
+      console.log("Setting up map load handler");
       // When map loads, add data layers
       map.current.on('load', () => {
+        console.log("Map loaded successfully");
         setMapInitialized(true);
         toast({
           title: "Map loaded successfully",
           description: "Health data visualizations are now available",
         });
         
+        console.log("Adding health data source");
         // Add dummy health data for demonstration
         map.current.addSource('health-data', {
           type: 'geojson',
@@ -182,6 +528,7 @@ const Map = () => {
           }
         });
         
+        console.log("Adding map layers");
         // Add health scores layer with updated colors for dark mode
         map.current.addLayer({
           id: 'healthScores',
@@ -193,7 +540,7 @@ const Map = () => {
               60, 15,
               90, 25
             ],
-            'circle-color': '#9b87f5', // Primary purple
+            'circle-color': mapFeatures.healthScores.color,
             'circle-opacity': 0.8,
             'circle-stroke-width': 2,
             'circle-stroke-color': isDarkMode ? '#1A1F2C' : '#ffffff' // Theme-based outline
@@ -211,7 +558,7 @@ const Map = () => {
               8, 15,
               16, 25
             ],
-            'circle-color': '#ff6979', // Red for diabetes
+            'circle-color': mapFeatures.diabetesRates.color,
             'circle-opacity': 0.8,
             'circle-stroke-width': 2,
             'circle-stroke-color': isDarkMode ? '#1A1F2C' : '#ffffff' // Theme-based outline
@@ -232,7 +579,7 @@ const Map = () => {
               60, 15,
               85, 25
             ],
-            'circle-color': '#D6BCFA', // Light purple for mental health
+            'circle-color': mapFeatures.mentalHealth.color,
             'circle-opacity': 0.8,
             'circle-stroke-width': 2,
             'circle-stroke-color': isDarkMode ? '#1A1F2C' : '#ffffff' // Theme-based outline
@@ -253,7 +600,7 @@ const Map = () => {
               60, 15,
               80, 25
             ],
-            'circle-color': '#68D391', // Green for air quality
+            'circle-color': mapFeatures.airQuality.color,
             'circle-opacity': 0.8,
             'circle-stroke-width': 2,
             'circle-stroke-color': isDarkMode ? '#1A1F2C' : '#ffffff' // Theme-based outline
@@ -263,6 +610,24 @@ const Map = () => {
           }
         });
         
+        // Add dummy layer for isochrone click detection
+        map.current.addLayer({
+          id: 'isochrone-click',
+          type: 'circle',
+          source: {
+            type: 'geojson',
+            data: {
+              type: 'FeatureCollection',
+              features: []
+            }
+          },
+          paint: {
+            'circle-radius': 0,
+            'circle-opacity': 0
+          }
+        });
+        
+        console.log("Setting up click handlers");
         // Add popups with improved styling
         const setupClickHandlers = (layerId: string) => {
           map.current?.on('click', layerId, (e) => {
@@ -284,6 +649,8 @@ const Map = () => {
         setupClickHandlers('mentalHealth');
         setupClickHandlers('airQuality');
       });
+
+      console.log("Map initialization complete");
     } catch (error) {
       console.error("Error initializing map:", error);
       toast({
@@ -294,6 +661,7 @@ const Map = () => {
     }
 
     return () => {
+      console.log("Cleaning up map");
       if (map.current) {
         map.current.remove();
         map.current = null;
@@ -338,67 +706,127 @@ const Map = () => {
     if (!map.current || !mapInitialized) return;
     
     // Hide all layers first
-    ['healthScores', 'diabetesRates', 'mentalHealth', 'airQuality'].forEach(id => {
+    Object.keys(mapFeatures).forEach(id => {
       map.current?.setLayoutProperty(id, 'visibility', 'none');
     });
     
     // Show selected layer
     map.current.setLayoutProperty(layerId, 'visibility', 'visible');
     setActiveLayer(layerId);
+    
+    toast({
+      title: `${mapFeatures[layerId as keyof typeof mapFeatures].name} layer activated`,
+      description: `Now showing ${mapFeatures[layerId as keyof typeof mapFeatures].name.toLowerCase()} data on the map`,
+    });
   };
 
-  // Function to render filters
-  const renderFilters = () => {
+  // Toggle a specific advanced feature
+  const toggleAdvancedFeature = (featureId: string) => {
+    switch (featureId) {
+      case 'search':
+        setAdvancedFeatureStatus({...advancedFeatureStatus, search: !advancedFeatureStatus.search});
+        if (!advancedFeatureStatus.search) {
+          addGeocoder();
+        } else {
+          // Remove geocoder
+          if (map.current && geocoder.current) {
+            map.current.removeControl(geocoder.current);
+            geocoder.current = null;
+            toast({
+              title: "Search deactivated",
+              description: "Search functionality has been removed",
+            });
+          }
+        }
+        break;
+      case 'isochrone':
+        toggleIsochrone();
+        break;
+      case 'directions':
+        toggleDirections();
+        break;
+      case 'datasets':
+        toggleDatasets();
+        break;
+    }
+  };
+
+  // Function to render map controls
+  const renderMapControls = () => {
+    if (!mapInitialized) return null;
+    
     return (
-      <div className="absolute bottom-6 right-6 z-10 bg-card/90 backdrop-blur-lg p-4 rounded-xl border border-border shadow-lg">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="font-semibold">Map Layers</h3>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => setShowFilters(!showFilters)}
-            className="h-6 w-6"
-          >
-            <Info className="h-3.5 w-3.5" />
-          </Button>
-        </div>
-        
-        {showFilters && (
-          <div className="space-y-2">
+      <div className={cn("map-controls", isFullscreen && "pt-12")}>
+        {/* Layers Panel */}
+        <div className="map-layer-panel">
+          <div className="panel-header">
+            <h3 className="text-sm font-medium">Map Layers</h3>
             <Button 
-              variant={activeLayer === 'healthScores' ? "default" : "outline"} 
-              size="sm" 
-              className="w-full justify-start"
-              onClick={() => toggleLayer('healthScores')}
+              variant="ghost" 
+              size="icon"
+              onClick={() => setShowLayersPanel(!showLayersPanel)}
+              className="h-6 w-6"
             >
-              Health Scores
-            </Button>
-            <Button 
-              variant={activeLayer === 'diabetesRates' ? "default" : "outline"} 
-              size="sm" 
-              className="w-full justify-start"
-              onClick={() => toggleLayer('diabetesRates')}
-            >
-              Diabetes Rates
-            </Button>
-            <Button 
-              variant={activeLayer === 'mentalHealth' ? "default" : "outline"} 
-              size="sm" 
-              className="w-full justify-start"
-              onClick={() => toggleLayer('mentalHealth')}
-            >
-              Mental Health
-            </Button>
-            <Button 
-              variant={activeLayer === 'airQuality' ? "default" : "outline"} 
-              size="sm" 
-              className="w-full justify-start"
-              onClick={() => toggleLayer('airQuality')}
-            >
-              Air Quality
+              {showLayersPanel ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
             </Button>
           </div>
-        )}
+          
+          {showLayersPanel && (
+            <div className="panel-content">
+              {Object.values(mapFeatures).map((feature) => (
+                <button
+                  key={feature.id}
+                  className={cn(
+                    "layer-item",
+                    activeLayer === feature.id && "active"
+                  )}
+                  onClick={() => toggleLayer(feature.id)}
+                >
+                  <span className="layer-color" style={{ backgroundColor: feature.color }} />
+                  <span className="flex-1 text-left">{feature.name}</span>
+                  {activeLayer === feature.id && <Eye className="h-3.5 w-3.5 text-primary" />}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        
+        {/* Advanced Features Panel */}
+        <div className="map-layer-panel">
+          <div className="panel-header">
+            <h3 className="text-sm font-medium">Advanced Features</h3>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => setShowAdvancedPanel(!showAdvancedPanel)}
+              className="h-6 w-6"
+            >
+              {showAdvancedPanel ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
+            </Button>
+          </div>
+          
+          {showAdvancedPanel && (
+            <div className="panel-content">
+              {advancedFeatures.map((feature) => (
+                <button
+                  key={feature.id}
+                  className={cn(
+                    "layer-item",
+                    advancedFeatureStatus[feature.id as keyof typeof advancedFeatureStatus] && "active"
+                  )}
+                  onClick={() => toggleAdvancedFeature(feature.id)}
+                >
+                  {feature.icon}
+                  <span className="flex-1 text-left">{feature.name}</span>
+                  {advancedFeatureStatus[feature.id as keyof typeof advancedFeatureStatus] 
+                    ? <Eye className="h-3.5 w-3.5 text-primary" />
+                    : <EyeOff className="h-3.5 w-3.5" />
+                  }
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     );
   };
@@ -415,12 +843,38 @@ const Map = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_300px]">
+        {/* Map container with fullscreen capability */}
+        <div className={cn(
+          "relative",
+          isFullscreen ? "map-fullscreen z-50" : "grid grid-cols-1 gap-4 lg:grid-cols-[1fr_300px]"
+        )}>
           <Card className={cn(
             "relative h-[600px] animate-fade-in",
-            "glass"
+            "glass",
+            isFullscreen && "h-screen rounded-none"
           )}>
-            <div className="absolute top-2 right-2 z-20">
+            {/* Fullscreen button */}
+            <div className="absolute top-2 right-2 z-30 gap-2 flex">
+              <TooltipProvider>
+                <Tooltip delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      onClick={toggleFullscreen}
+                      className="bg-card/80 backdrop-blur-sm"
+                    >
+                      {isFullscreen ? <Minimize className="h-4 w-4" /> : <Expand className="h-4 w-4" />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="left">
+                    <p>{isFullscreen ? "Exit fullscreen" : "View fullscreen"}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            
+            <div className="absolute top-2 right-12 z-10 flex gap-2">
               <TooltipProvider>
                 <Tooltip delayDuration={0}>
                   <TooltipTrigger asChild>
@@ -431,32 +885,6 @@ const Map = () => {
                   </TooltipTrigger>
                   <TooltipContent side="left" className="max-w-xs">
                     <p>{features.communityHealthMap.description}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <div className="absolute top-4 right-12 z-10 flex gap-2">
-              <TooltipProvider>
-                <Tooltip delayDuration={0}>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon" onClick={() => setShowFilters(!showFilters)}>
-                      <Layers className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Toggle map layers</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <TooltipProvider>
-                <Tooltip delayDuration={0}>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <Filter className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Filter data</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -506,181 +934,226 @@ const Map = () => {
               </div>
             ) : (
               <>
-                <div ref={mapContainer} className="h-full w-full rounded-xl overflow-hidden" />
-                {renderFilters()}
+                <div ref={mapContainer} className={cn(
+                  "h-full w-full rounded-xl overflow-hidden",
+                  isFullscreen && "rounded-none"
+                )} />
+                {renderMapControls()}
               </>
             )}
           </Card>
 
-          <div className="space-y-4">
-            <Card className={cn(
-              "p-6 animate-fade-in relative",
-              "glass"
-            )}>
-              <div className="absolute top-2 right-2">
-                <TooltipProvider>
-                  <Tooltip delayDuration={0}>
-                    <TooltipTrigger asChild>
-                      <span className="feature-tag feature-tag-existing flex items-center gap-1">
-                        {features.dashboardOverview.type}
-                        <Info className="w-3 h-3 info-icon" />
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent side="left" className="max-w-xs">
-                      <p>{features.dashboardOverview.description}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <h3 className="font-semibold mb-4">Legend</h3>
-              <div className="space-y-2">
-                {activeLayer === 'healthScores' && (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: '#9b87f5' }} />
-                      <span>High Health Score</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: '#9b87f5' }} />
-                      <span>Medium Health Score</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: '#9b87f5' }} />
-                      <span>Low Health Score</span>
-                    </div>
-                  </>
-                )}
-                
-                {activeLayer === 'diabetesRates' && (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: '#ff6979' }} />
-                      <span>High Diabetes Rate</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: '#ff6979' }} />
-                      <span>Medium Diabetes Rate</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: '#ff6979' }} />
-                      <span>Low Diabetes Rate</span>
-                    </div>
-                  </>
-                )}
-                
-                {activeLayer === 'mentalHealth' && (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: '#D6BCFA' }} />
-                      <span>High Mental Health Score</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: '#D6BCFA' }} />
-                      <span>Medium Mental Health Score</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: '#D6BCFA' }} />
-                      <span>Low Mental Health Score</span>
-                    </div>
-                  </>
-                )}
-                
-                {activeLayer === 'airQuality' && (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: '#68D391' }} />
-                      <span>High Air Quality</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: '#68D391' }} />
-                      <span>Medium Air Quality</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: '#68D391' }} />
-                      <span>Low Air Quality</span>
-                    </div>
-                  </>
-                )}
-              </div>
-            </Card>
-
-            <Card className={cn(
-              "p-6 animate-fade-in relative",
-              "glass"
-            )}>
-              <div className="absolute top-2 right-2">
-                <TooltipProvider>
-                  <Tooltip delayDuration={0}>
-                    <TooltipTrigger asChild>
-                      <span className="feature-tag feature-tag-new flex items-center gap-1">
-                        {features.predictiveAnalytics.type}
-                        <Info className="w-3 h-3 info-icon" />
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent side="left" className="max-w-xs">
-                      <p>{features.predictiveAnalytics.description}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </div>
-              <h3 className="font-semibold mb-4">Filters</h3>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Health Indicators</label>
-                  <div className="space-y-1">
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start"
-                      onClick={() => toggleLayer('healthScores')}
-                    >
-                      <input 
-                        type="checkbox" 
-                        className="mr-2" 
-                        checked={activeLayer === 'healthScores'} 
-                        onChange={() => {}} 
-                      /> Overall Health
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start"
-                      onClick={() => toggleLayer('diabetesRates')}
-                    >
-                      <input 
-                        type="checkbox" 
-                        className="mr-2" 
-                        checked={activeLayer === 'diabetesRates'} 
-                        onChange={() => {}} 
-                      /> Diabetes Rate
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start"
-                      onClick={() => toggleLayer('mentalHealth')}
-                    >
-                      <input 
-                        type="checkbox" 
-                        className="mr-2" 
-                        checked={activeLayer === 'mentalHealth'} 
-                        onChange={() => {}} 
-                      /> Mental Health
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start"
-                      onClick={() => toggleLayer('airQuality')}
-                    >
-                      <input 
-                        type="checkbox" 
-                        className="mr-2" 
-                        checked={activeLayer === 'airQuality'} 
-                        onChange={() => {}} 
-                      /> Air Quality
-                    </Button>
-                  </div>
+          {!isFullscreen && (
+            <div className="space-y-4">
+              <Card className={cn(
+                "p-6 animate-fade-in relative",
+                "glass"
+              )}>
+                <div className="absolute top-2 right-2">
+                  <TooltipProvider>
+                    <Tooltip delayDuration={0}>
+                      <TooltipTrigger asChild>
+                        <span className="feature-tag feature-tag-existing flex items-center gap-1">
+                          {features.dashboardOverview.type}
+                          <Info className="w-3 h-3 info-icon" />
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent side="left" className="max-w-xs">
+                        <p>{features.dashboardOverview.description}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
-              </div>
-            </Card>
-          </div>
+                <h3 className="font-semibold mb-4">Legend</h3>
+                <div className="space-y-2">
+                  {activeLayer === 'healthScores' && (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: mapFeatures.healthScores.color }} />
+                        <span>High Health Score</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: mapFeatures.healthScores.color }} />
+                        <span>Medium Health Score</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: mapFeatures.healthScores.color }} />
+                        <span>Low Health Score</span>
+                      </div>
+                    </>
+                  )}
+                  
+                  {activeLayer === 'diabetesRates' && (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: mapFeatures.diabetesRates.color }} />
+                        <span>High Diabetes Rate</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: mapFeatures.diabetesRates.color }} />
+                        <span>Medium Diabetes Rate</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: mapFeatures.diabetesRates.color }} />
+                        <span>Low Diabetes Rate</span>
+                      </div>
+                    </>
+                  )}
+                  
+                  {activeLayer === 'mentalHealth' && (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: mapFeatures.mentalHealth.color }} />
+                        <span>High Mental Health Score</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: mapFeatures.mentalHealth.color }} />
+                        <span>Medium Mental Health Score</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: mapFeatures.mentalHealth.color }} />
+                        <span>Low Mental Health Score</span>
+                      </div>
+                    </>
+                  )}
+                  
+                  {activeLayer === 'airQuality' && (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: mapFeatures.airQuality.color }} />
+                        <span>High Air Quality</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: mapFeatures.airQuality.color }} />
+                        <span>Medium Air Quality</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: mapFeatures.airQuality.color }} />
+                        <span>Low Air Quality</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </Card>
+
+              <Card className={cn(
+                "animate-fade-in relative overflow-hidden",
+                "glass"
+              )}>
+                <div className="absolute top-2 right-2">
+                  <TooltipProvider>
+                    <Tooltip delayDuration={0}>
+                      <TooltipTrigger asChild>
+                        <span className="feature-tag feature-tag-new flex items-center gap-1">
+                          {features.predictiveAnalytics.type}
+                          <Info className="w-3 h-3 info-icon" />
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent side="left" className="max-w-xs">
+                        <p>{features.predictiveAnalytics.description}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                
+                <Accordion type="single" collapsible defaultValue="item-1">
+                  <AccordionItem value="item-1">
+                    <AccordionTrigger className="px-6 py-4">Health Indicators</AccordionTrigger>
+                    <AccordionContent className="px-6 pb-4">
+                      <div className="space-y-1">
+                        {Object.values(mapFeatures).map((feature) => (
+                          <Button 
+                            key={feature.id}
+                            variant="ghost" 
+                            className="w-full justify-start"
+                            onClick={() => toggleLayer(feature.id)}
+                          >
+                            <div className="flex items-center gap-2 w-full">
+                              <input 
+                                type="checkbox" 
+                                className="mr-2" 
+                                checked={activeLayer === feature.id} 
+                                onChange={() => {}} 
+                              />
+                              <span className="layer-color" style={{ backgroundColor: feature.color }} />
+                              <span>{feature.name}</span>
+                            </div>
+                          </Button>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                  
+                  <AccordionItem value="item-2">
+                    <AccordionTrigger className="px-6 py-4">Advanced Features</AccordionTrigger>
+                    <AccordionContent className="px-6 pb-4">
+                      <div className="space-y-1">
+                        {advancedFeatures.map((feature) => (
+                          <Button 
+                            key={feature.id}
+                            variant="ghost" 
+                            className="w-full justify-start"
+                            onClick={() => toggleAdvancedFeature(feature.id)}
+                          >
+                            <div className="flex items-center gap-2 w-full">
+                              <input 
+                                type="checkbox" 
+                                className="mr-2" 
+                                checked={advancedFeatureStatus[feature.id as keyof typeof advancedFeatureStatus]} 
+                                onChange={() => {}} 
+                              />
+                              {feature.icon}
+                              <span>{feature.name}</span>
+                            </div>
+                          </Button>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </Card>
+              
+              <Card className={cn(
+                "p-6 animate-fade-in relative",
+                "glass"
+              )}>
+                <div className="absolute top-2 right-2">
+                  <TooltipProvider>
+                    <Tooltip delayDuration={0}>
+                      <TooltipTrigger asChild>
+                        <span className="feature-tag feature-tag-new flex items-center gap-1">
+                          Help
+                          <Info className="w-3 h-3 info-icon" />
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent side="left" className="max-w-xs">
+                        <p>Additional information about map features</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <h3 className="font-semibold mb-4">Map Usage Tips</h3>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-start gap-2">
+                    <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                    <span>Click on any point to see detailed health data</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Layers className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                    <span>Toggle between different health metrics using the layer controls</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Expand className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                    <span>Use fullscreen mode for a more immersive experience</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Search className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                    <span>Try the search feature to find specific locations</span>
+                  </li>
+                </ul>
+              </Card>
+            </div>
+          )}
         </div>
       </div>
     </MainLayout>

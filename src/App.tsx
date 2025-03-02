@@ -12,6 +12,10 @@ import Insights from "./pages/Insights";
 import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
 
+// Create dependencies for Mapbox advanced features
+import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
+import "@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css";
+
 const queryClient = new QueryClient();
 
 const App = () => {
