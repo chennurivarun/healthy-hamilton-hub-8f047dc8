@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import MainLayout from "@/components/layout/MainLayout";
@@ -194,86 +193,92 @@ const Map = () => {
     
     if (!map.current) return;
     
-    if (isEnabled) {
-      // This is where the error was - we need to provide both event type and handler function
-      map.current.on('click', function(e) {
+    const handleIsochroneClick = function(e: mapboxgl.MapMouseEvent) {
+      if (!map.current) return;
+      const coords = e.lngLat;
+      
+      toast({
+        title: "Generating accessibility zones",
+        description: "Calculating areas within 15 minutes...",
+      });
+      
+      setTimeout(() => {
         if (!map.current) return;
-        const coords = e.lngLat;
         
-        toast({
-          title: "Generating accessibility zones",
-          description: "Calculating areas within 15 minutes...",
-        });
+        const center = [coords.lng, coords.lat];
+        const radius = 0.02;
+        const options = { steps: 50, units: 'kilometers' as const };
         
-        setTimeout(() => {
-          if (!map.current) return;
-          
-          const center = [coords.lng, coords.lat];
-          const radius = 0.02;
-          const options = { steps: 50, units: 'kilometers' as const };
-          
-          try {
-            import('@turf/turf').then((turf) => {
-              const circle = turf.circle(center, radius, options);
-              
-              if (!map.current?.getSource('isochrone')) {
-                map.current?.addSource('isochrone', {
-                  type: 'geojson',
-                  data: {
-                    type: 'FeatureCollection',
-                    features: [circle]
-                  }
-                });
-                
-                map.current?.addLayer({
-                  id: 'isochrone-fill',
-                  type: 'fill',
-                  source: 'isochrone',
-                  paint: {
-                    'fill-color': '#9b87f5',
-                    'fill-opacity': 0.2
-                  }
-                });
-                
-                map.current?.addLayer({
-                  id: 'isochrone-outline',
-                  type: 'line',
-                  source: 'isochrone',
-                  paint: {
-                    'line-color': '#9b87f5',
-                    'line-width': 2
-                  }
-                });
-              } else {
-                (map.current?.getSource('isochrone') as mapboxgl.GeoJSONSource).setData({
+        try {
+          import('@turf/turf').then((turf) => {
+            const circle = turf.circle(center, radius, options);
+            
+            if (!map.current?.getSource('isochrone')) {
+              map.current?.addSource('isochrone', {
+                type: 'geojson',
+                data: {
                   type: 'FeatureCollection',
                   features: [circle]
-                });
-              }
-              
-              toast({
-                title: "Accessibility zone created",
-                description: "Showing area within approximately 15 minutes walking distance",
+                }
               });
-            });
-          } catch (error) {
-            console.error("Error generating isochrone:", error);
+              
+              map.current?.addLayer({
+                id: 'isochrone-fill',
+                type: 'fill',
+                source: 'isochrone',
+                paint: {
+                  'fill-color': '#9b87f5',
+                  'fill-opacity': 0.2
+                }
+              });
+              
+              map.current?.addLayer({
+                id: 'isochrone-outline',
+                type: 'line',
+                source: 'isochrone',
+                paint: {
+                  'line-color': '#9b87f5',
+                  'line-width': 2
+                }
+              });
+            } else {
+              (map.current?.getSource('isochrone') as mapboxgl.GeoJSONSource).setData({
+                type: 'FeatureCollection',
+                features: [circle]
+              });
+            }
+            
             toast({
-              title: "Error creating accessibility zone",
-              description: "Could not generate the accessibility visualization",
-              variant: "destructive",
+              title: "Accessibility zone created",
+              description: "Showing area within approximately 15 minutes walking distance",
             });
-          }
-        }, 1000);
-      });
+          });
+        } catch (error) {
+          console.error("Error generating isochrone:", error);
+          toast({
+            title: "Error creating accessibility zone",
+            description: "Could not generate the accessibility visualization",
+            variant: "destructive",
+          });
+        }
+      }, 1000);
+    };
+    
+    if (isEnabled) {
+      (map.current as any)._isochroneClickHandler = handleIsochroneClick;
+      map.current.on('click', handleIsochroneClick);
       
       toast({
         title: "Accessibility analysis activated",
         description: "Click anywhere on the map to see reachable areas",
       });
     } else {
-      // We need to provide the same handler function signature to remove the event
-      map.current.off('click');
+      const storedHandler = (map.current as any)._isochroneClickHandler;
+      
+      if (storedHandler) {
+        map.current.off('click', storedHandler);
+        (map.current as any)._isochroneClickHandler = null;
+      }
       
       if (map.current.getLayer('isochrone-fill')) {
         map.current.removeLayer('isochrone-fill');
