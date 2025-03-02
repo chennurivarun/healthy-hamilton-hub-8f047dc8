@@ -8,14 +8,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Info, Search, X } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
-import { 
-  SearchField, 
-  SearchFieldInput, 
-  SearchFieldClear, 
-  SearchFieldGroup 
-} from "@/components/ui/searchfield";
+import { Info, } from "lucide-react";
+
+
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -80,23 +75,8 @@ export const features = {
 };
 
 const MainLayout = ({ children }: MainLayoutProps) => {
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      toast({
-        title: "Search initiated",
-        description: `Searching for: "${searchQuery}"`,
-      });
-      setSearchQuery("");
-    } else {
-      toast({
-        title: "Search error",
-        description: "Please enter a search term",
-        variant: "destructive",
-      });
-    }
-  };
+  
+ 
 
   // Feature labels to show in the top-right corner
   const featuresToShowInCorner = [
@@ -112,25 +92,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         
         <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
           {/* Search Bar */}
-          <div className="top-search-container">
-            <SearchField 
-              value={searchQuery} 
-              onChange={setSearchQuery}
-              onSubmit={handleSearch}
-              className="search-field-wrapper"
-            >
-              <SearchFieldGroup className="bg-transparent border-0 shadow-none px-2">
-                <Search className="h-4 w-4 text-muted-foreground" />
-                <SearchFieldInput 
-                  placeholder="Search..." 
-                  className="bg-transparent border-0 shadow-none outline-none"
-                />
-                <SearchFieldClear onPress={() => setSearchQuery("")}>
-                  <X className="h-4 w-4" />
-                </SearchFieldClear>
-              </SearchFieldGroup>
-            </SearchField>
-          </div>
+        
 
           {featuresToShowInCorner.map((feature) => (
             <Tooltip key={feature.name}>
