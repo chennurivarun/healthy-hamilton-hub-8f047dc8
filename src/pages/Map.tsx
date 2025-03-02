@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import MainLayout from "@/components/layout/MainLayout";
-import { MapPin, Layers, Filter, Info, Eye, EyeOff, Expand, Minimize, Search, Clock, Navigation, Database, Map as MapIcon } from "lucide-react";
+import { MapPin, Layers, Filter, Info, Eye, EyeOff, Expand, Minimize, Search, Clock, Navigation, Database, Map as MapIcon, Palette, Compass, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -28,6 +28,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { JollySearchField } from "@/components/ui/searchfield";
 
 const mapFeatures = {
   healthScores: {
@@ -103,6 +105,7 @@ const Map = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showLayersPanel, setShowLayersPanel] = useState(true);
   const [showAdvancedPanel, setShowAdvancedPanel] = useState(false);
+  const [activeTab, setActiveTab] = useState("layers");
   const [advancedFeatureStatus, setAdvancedFeatureStatus] = useState({
     search: false,
     isochrone: false,
@@ -111,6 +114,7 @@ const Map = () => {
   });
   
   const geocoder = useRef<any>(null);
+  const isochroneClickHandler = useRef<((e: mapboxgl.MapMouseEvent) => void) | null>(null);
   
   useEffect(() => {
     if (mapToken) {
@@ -193,7 +197,7 @@ const Map = () => {
     
     if (!map.current) return;
     
-    const handleIsochroneClick = function(e: mapboxgl.MapMouseEvent) {
+    const handleIsochroneClick = (e: mapboxgl.MapMouseEvent) => {
       if (!map.current) return;
       const coords = e.lngLat;
       
@@ -265,7 +269,7 @@ const Map = () => {
     };
     
     if (isEnabled) {
-      (map.current as any)._isochroneClickHandler = handleIsochroneClick;
+      isochroneClickHandler.current = handleIsochroneClick;
       map.current.on('click', handleIsochroneClick);
       
       toast({
@@ -273,11 +277,9 @@ const Map = () => {
         description: "Click anywhere on the map to see reachable areas",
       });
     } else {
-      const storedHandler = (map.current as any)._isochroneClickHandler;
-      
-      if (storedHandler) {
-        map.current.off('click', storedHandler);
-        (map.current as any)._isochroneClickHandler = null;
+      if (isochroneClickHandler.current) {
+        map.current.off('click', isochroneClickHandler.current);
+        isochroneClickHandler.current = null;
       }
       
       if (map.current.getLayer('isochrone-fill')) {
@@ -634,14 +636,26 @@ const Map = () => {
     const properties = e.features[0].properties;
     
     const popupContent = document.createElement('div');
-    popupContent.className = 'p-2 text-sm rounded-md';
+    popupContent.className = 'p-3 text-sm rounded-md';
     popupContent.innerHTML = `
-      <h3 class="font-bold text-base text-[#9b87f5]">${properties?.name}</h3>
-      <div class="mt-2 space-y-1">
-        <div>Health Score: <span class="font-medium">${properties?.healthScore}</span></div>
-        <div>Diabetes Rate: <span class="font-medium">${properties?.diabetesRate}%</span></div>
-        <div>Mental Health: <span class="font-medium">${properties?.mentalHealth}</span></div>
-        <div>Air Quality: <span class="font-medium">${properties?.airQuality}</span></div>
+      <h3 class="font-bold text-base text-[#9b87f5] mb-2">${properties?.name}</h3>
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <span>Health Score:</span>
+          <span class="font-medium">${properties?.healthScore}</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span>Diabetes Rate:</span>
+          <span class="font-medium">${properties?.diabetesRate}%</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span>Mental Health:</span>
+          <span class="font-medium">${properties?.mentalHealth}</span>
+        </div>
+        <div class="flex items-center justify-between">
+          <span>Air Quality:</span>
+          <span class="font-medium">${properties?.airQuality}</span>
+        </div>
       </div>
     `;
     
@@ -705,136 +719,246 @@ const Map = () => {
     if (!mapInitialized) return null;
     
     return (
-      <div className={cn("map-controls", isFullscreen && "pt-12")}>
-        <div className="map-layer-panel">
-          <div className="panel-header">
-            <h3 className="text-sm font-medium">Map Layers</h3>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => setShowLayersPanel(!showLayersPanel)}
-              className="h-6 w-6"
-            >
-              {showLayersPanel ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
-            </Button>
-          </div>
-          
-          {showLayersPanel && (
-            <div className="panel-content">
-              {Object.values(mapFeatures).map((feature) => (
-                <button
-                  key={feature.id}
-                  className={cn(
-                    "layer-item",
-                    activeLayer === feature.id && "active"
-                  )}
-                  onClick={() => toggleLayer(feature.id)}
-                >
-                  <span className="layer-color" style={{ backgroundColor: feature.color }} />
-                  <span className="flex-1 text-left">{feature.name}</span>
-                  {activeLayer === feature.id && <Eye className="h-3.5 w-3.5 text-primary" />}
-                </button>
-              ))}
+      <div className={cn(
+        "fixed top-20 right-4 z-40 w-[300px] transition-all duration-300",
+        isFullscreen && "top-4"
+      )}>
+        <Card className="bg-card/80 backdrop-blur-md border border-border/50 shadow-lg overflow-hidden">
+          <Tabs defaultValue="layers" value={activeTab} onValueChange={setActiveTab}>
+            <div className="flex items-center justify-between p-2 border-b border-border/50">
+              <TabsList className="grid grid-cols-4 w-full">
+                <TabsTrigger value="layers" className="text-xs px-2 py-1">
+                  <Layers className="h-4 w-4 mr-1" />
+                  <span className="hidden sm:inline">Layers</span>
+                </TabsTrigger>
+                <TabsTrigger value="tools" className="text-xs px-2 py-1">
+                  <Settings className="h-4 w-4 mr-1" />
+                  <span className="hidden sm:inline">Tools</span>
+                </TabsTrigger>
+                <TabsTrigger value="legend" className="text-xs px-2 py-1">
+                  <Palette className="h-4 w-4 mr-1" />
+                  <span className="hidden sm:inline">Legend</span>
+                </TabsTrigger>
+                <TabsTrigger value="info" className="text-xs px-2 py-1">
+                  <Info className="h-4 w-4 mr-1" />
+                  <span className="hidden sm:inline">Info</span>
+                </TabsTrigger>
+              </TabsList>
             </div>
-          )}
-        </div>
-        
-        <div className="map-layer-panel">
-          <div className="panel-header">
-            <h3 className="text-sm font-medium">Advanced Features</h3>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={() => setShowAdvancedPanel(!showAdvancedPanel)}
-              className="h-6 w-6"
-            >
-              {showAdvancedPanel ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
-            </Button>
-          </div>
-          
-          {showAdvancedPanel && (
-            <div className="panel-content">
-              {advancedFeatures.map((feature) => (
-                <button
-                  key={feature.id}
-                  className={cn(
-                    "layer-item",
-                    advancedFeatureStatus[feature.id as keyof typeof advancedFeatureStatus] && "active"
-                  )}
-                  onClick={() => toggleAdvancedFeature(feature.id)}
-                >
-                  {feature.icon}
-                  <span className="flex-1 text-left">{feature.name}</span>
-                  {advancedFeatureStatus[feature.id as keyof typeof advancedFeatureStatus] 
-                    ? <Eye className="h-3.5 w-3.5 text-primary" />
-                    : <EyeOff className="h-3.5 w-3.5" />
-                  }
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+            
+            <TabsContent value="layers" className="p-0 m-0">
+              <div className="p-3 space-y-2">
+                <h3 className="text-sm font-medium mb-2">Health Data Layers</h3>
+                <div className="space-y-1">
+                  {Object.values(mapFeatures).map((feature) => (
+                    <div 
+                      key={feature.id}
+                      className={cn(
+                        "flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors",
+                        activeLayer === feature.id 
+                          ? "bg-primary/10 text-primary" 
+                          : "hover:bg-muted/50"
+                      )}
+                      onClick={() => toggleLayer(feature.id)}
+                    >
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: feature.color }} />
+                      <span className="flex-1 text-sm">{feature.name}</span>
+                      {activeLayer === feature.id && <Eye className="h-3.5 w-3.5 text-primary" />}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="tools" className="p-0 m-0">
+              <div className="p-3 space-y-2">
+                <h3 className="text-sm font-medium mb-2">Advanced Tools</h3>
+                <div className="space-y-1">
+                  {advancedFeatures.map((feature) => (
+                    <div
+                      key={feature.id}
+                      className={cn(
+                        "flex items-center gap-2 p-2 rounded-md cursor-pointer transition-colors",
+                        advancedFeatureStatus[feature.id as keyof typeof advancedFeatureStatus]
+                          ? "bg-primary/10 text-primary" 
+                          : "hover:bg-muted/50"
+                      )}
+                      onClick={() => toggleAdvancedFeature(feature.id)}
+                    >
+                      {feature.icon}
+                      <span className="flex-1 text-sm">{feature.name}</span>
+                      {advancedFeatureStatus[feature.id as keyof typeof advancedFeatureStatus] 
+                        ? <Eye className="h-3.5 w-3.5 text-primary" />
+                        : <EyeOff className="h-3.5 w-3.5 opacity-50" />
+                      }
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="legend" className="p-0 m-0">
+              <div className="p-3">
+                <h3 className="text-sm font-medium mb-2">Legend</h3>
+                {activeLayer === 'healthScores' && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: mapFeatures.healthScores.color }} />
+                      <span className="text-sm">High Health Score (80-100)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: mapFeatures.healthScores.color }} />
+                      <span className="text-sm">Medium Health Score (60-80)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: mapFeatures.healthScores.color }} />
+                      <span className="text-sm">Low Health Score (Below 60)</span>
+                    </div>
+                  </div>
+                )}
+                
+                {activeLayer === 'diabetesRates' && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: mapFeatures.diabetesRates.color }} />
+                      <span className="text-sm">High Diabetes Rate (>15%)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: mapFeatures.diabetesRates.color }} />
+                      <span className="text-sm">Medium Diabetes Rate (10-15%)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: mapFeatures.diabetesRates.color }} />
+                      <span className="text-sm">Low Diabetes Rate (<10%)</span>
+                    </div>
+                  </div>
+                )}
+                
+                {activeLayer === 'mentalHealth' && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: mapFeatures.mentalHealth.color }} />
+                      <span className="text-sm">High Mental Health Score (>80)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: mapFeatures.mentalHealth.color }} />
+                      <span className="text-sm">Medium Mental Health Score (70-80)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: mapFeatures.mentalHealth.color }} />
+                      <span className="text-sm">Low Mental Health Score (<70)</span>
+                    </div>
+                  </div>
+                )}
+                
+                {activeLayer === 'airQuality' && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: mapFeatures.airQuality.color }} />
+                      <span className="text-sm">High Air Quality (>75)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: mapFeatures.airQuality.color }} />
+                      <span className="text-sm">Medium Air Quality (65-75)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: mapFeatures.airQuality.color }} />
+                      <span className="text-sm">Low Air Quality (<65)</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="info" className="p-0 m-0">
+              <div className="p-3">
+                <h3 className="text-sm font-medium mb-2">Map Usage Tips</h3>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-start gap-2">
+                    <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                    <span>Click on any point to see detailed health data</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Layers className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                    <span>Toggle between different health metrics in the Layers tab</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Settings className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                    <span>Access advanced tools like search and directions in the Tools tab</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Clock className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                    <span>Use accessibility analysis to see areas within walking distance</span>
+                  </li>
+                </ul>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </Card>
       </div>
     );
   };
 
   return (
     <MainLayout>
-      <div className="space-y-8 pt-16">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight animate-fade-in">
-            Community Health Map
-          </h2>
-          <p className="text-muted-foreground mt-2 animate-fade-in">
-            Explore health metrics across Hamilton neighborhoods
-          </p>
+      <div className="space-y-4 pt-16">
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-3xl font-bold tracking-tight animate-fade-in">
+              Community Health Map
+            </h2>
+            <p className="text-muted-foreground mt-2 animate-fade-in">
+              Explore health metrics across Hamilton neighborhoods
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={toggleFullscreen}
+                    className="flex items-center gap-1"
+                  >
+                    {isFullscreen ? 
+                      <><Minimize className="h-4 w-4" /> Exit Fullscreen</> : 
+                      <><Expand className="h-4 w-4" /> Fullscreen</>
+                    }
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {isFullscreen ? "Exit fullscreen mode" : "Enter fullscreen mode"}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="feature-tag feature-tag-improved flex items-center gap-1">
+                    {features.communityHealthMap.type}
+                    <Info className="w-3 h-3 info-icon" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="left" className="max-w-xs">
+                  <p>{features.communityHealthMap.description}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </div>
 
         <div className={cn(
           "relative",
-          isFullscreen ? "map-fullscreen z-50" : "grid grid-cols-1 gap-4 lg:grid-cols-[1fr_300px]"
+          isFullscreen && "map-fullscreen z-50"
         )}>
           <Card className={cn(
-            "relative h-[600px] animate-fade-in",
+            "relative h-[calc(100vh-200px)] min-h-[600px] animate-fade-in",
             "glass",
             isFullscreen && "h-screen rounded-none"
           )}>
-            <div className="absolute top-2 right-2 z-30 gap-2 flex">
-              <TooltipProvider>
-                <Tooltip delayDuration={0}>
-                  <TooltipTrigger asChild>
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
-                      onClick={toggleFullscreen}
-                      className="bg-card/80 backdrop-blur-sm"
-                    >
-                      {isFullscreen ? <Minimize className="h-4 w-4" /> : <Expand className="h-4 w-4" />}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="left">
-                    <p>{isFullscreen ? "Exit fullscreen" : "View fullscreen"}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            
-            <div className="absolute top-2 right-12 z-10 flex gap-2">
-              <TooltipProvider>
-                <Tooltip delayDuration={0}>
-                  <TooltipTrigger asChild>
-                    <span className="feature-tag feature-tag-improved flex items-center gap-1">
-                      {features.communityHealthMap.type}
-                      <Info className="w-3 h-3 info-icon" />
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent side="left" className="max-w-xs">
-                    <p>{features.communityHealthMap.description}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            
             {!mapToken ? (
               <div className="h-full flex flex-col items-center justify-center p-6">
                 <MapPin className="h-12 w-12 mb-4 text-primary" />
@@ -883,222 +1007,30 @@ const Map = () => {
                   "h-full w-full rounded-xl overflow-hidden",
                   isFullscreen && "rounded-none"
                 )} />
+                
                 {renderMapControls()}
+                
+                {advancedFeatureStatus.isochrone && (
+                  <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-40 bg-card/90 backdrop-blur-md rounded-lg shadow-lg p-3 border border-border/50">
+                    <p className="text-sm font-medium text-center">
+                      Click anywhere on the map to see 15-minute walking distance
+                    </p>
+                  </div>
+                )}
+                
+                {isFullscreen && (
+                  <Button
+                    variant="outline"
+                    size="sm" 
+                    onClick={toggleFullscreen}
+                    className="fixed top-4 right-4 z-50 bg-card/80 backdrop-blur-sm"
+                  >
+                    <Minimize className="h-4 w-4 mr-1" /> Exit
+                  </Button>
+                )}
               </>
             )}
           </Card>
-
-          {!isFullscreen && (
-            <div className="space-y-4">
-              <Card className={cn(
-                "p-6 animate-fade-in relative",
-                "glass"
-              )}>
-                <div className="absolute top-2 right-2">
-                  <TooltipProvider>
-                    <Tooltip delayDuration={0}>
-                      <TooltipTrigger asChild>
-                        <span className="feature-tag feature-tag-existing flex items-center gap-1">
-                          {features.dashboardOverview.type}
-                          <Info className="w-3 h-3 info-icon" />
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent side="left" className="max-w-xs">
-                        <p>{features.dashboardOverview.description}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <h3 className="font-semibold mb-4">Legend</h3>
-                <div className="space-y-2">
-                  {activeLayer === 'healthScores' && (
-                    <>
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: mapFeatures.healthScores.color }} />
-                        <span>High Health Score</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: mapFeatures.healthScores.color }} />
-                        <span>Medium Health Score</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: mapFeatures.healthScores.color }} />
-                        <span>Low Health Score</span>
-                      </div>
-                    </>
-                  )}
-                  
-                  {activeLayer === 'diabetesRates' && (
-                    <>
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: mapFeatures.diabetesRates.color }} />
-                        <span>High Diabetes Rate</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: mapFeatures.diabetesRates.color }} />
-                        <span>Medium Diabetes Rate</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: mapFeatures.diabetesRates.color }} />
-                        <span>Low Diabetes Rate</span>
-                      </div>
-                    </>
-                  )}
-                  
-                  {activeLayer === 'mentalHealth' && (
-                    <>
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: mapFeatures.mentalHealth.color }} />
-                        <span>High Mental Health Score</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: mapFeatures.mentalHealth.color }} />
-                        <span>Medium Mental Health Score</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: mapFeatures.mentalHealth.color }} />
-                        <span>Low Mental Health Score</span>
-                      </div>
-                    </>
-                  )}
-                  
-                  {activeLayer === 'airQuality' && (
-                    <>
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded-full opacity-90" style={{ backgroundColor: mapFeatures.airQuality.color }} />
-                        <span>High Air Quality</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded-full opacity-70" style={{ backgroundColor: mapFeatures.airQuality.color }} />
-                        <span>Medium Air Quality</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 rounded-full opacity-50" style={{ backgroundColor: mapFeatures.airQuality.color }} />
-                        <span>Low Air Quality</span>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </Card>
-
-              <Card className={cn(
-                "animate-fade-in relative overflow-hidden",
-                "glass"
-              )}>
-                <div className="absolute top-2 right-2">
-                  <TooltipProvider>
-                    <Tooltip delayDuration={0}>
-                      <TooltipTrigger asChild>
-                        <span className="feature-tag feature-tag-new flex items-center gap-1">
-                          {features.predictiveAnalytics.type}
-                          <Info className="w-3 h-3 info-icon" />
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent side="left" className="max-w-xs">
-                        <p>{features.predictiveAnalytics.description}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                
-                <Accordion type="single" collapsible defaultValue="item-1">
-                  <AccordionItem value="item-1">
-                    <AccordionTrigger className="px-6 py-4">Health Indicators</AccordionTrigger>
-                    <AccordionContent className="px-6 pb-4">
-                      <div className="space-y-1">
-                        {Object.values(mapFeatures).map((feature) => (
-                          <Button 
-                            key={feature.id}
-                            variant="ghost" 
-                            className="w-full justify-start"
-                            onClick={() => toggleLayer(feature.id)}
-                          >
-                            <div className="flex items-center gap-2 w-full">
-                              <input 
-                                type="checkbox" 
-                                className="mr-2" 
-                                checked={activeLayer === feature.id} 
-                                onChange={() => {}} 
-                              />
-                              <span className="layer-color" style={{ backgroundColor: feature.color }} />
-                              <span>{feature.name}</span>
-                            </div>
-                          </Button>
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                  
-                  <AccordionItem value="item-2">
-                    <AccordionTrigger className="px-6 py-4">Advanced Features</AccordionTrigger>
-                    <AccordionContent className="px-6 pb-4">
-                      <div className="space-y-1">
-                        {advancedFeatures.map((feature) => (
-                          <Button 
-                            key={feature.id}
-                            variant="ghost" 
-                            className="w-full justify-start"
-                            onClick={() => toggleAdvancedFeature(feature.id)}
-                          >
-                            <div className="flex items-center gap-2 w-full">
-                              <input 
-                                type="checkbox" 
-                                className="mr-2" 
-                                checked={advancedFeatureStatus[feature.id as keyof typeof advancedFeatureStatus]} 
-                                onChange={() => {}} 
-                              />
-                              {feature.icon}
-                              <span>{feature.name}</span>
-                            </div>
-                          </Button>
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              </Card>
-              
-              <Card className={cn(
-                "p-6 animate-fade-in relative",
-                "glass"
-              )}>
-                <div className="absolute top-2 right-2">
-                  <TooltipProvider>
-                    <Tooltip delayDuration={0}>
-                      <TooltipTrigger asChild>
-                        <span className="feature-tag feature-tag-new flex items-center gap-1">
-                          Help
-                          <Info className="w-3 h-3 info-icon" />
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent side="left" className="max-w-xs">
-                        <p>Additional information about map features</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </div>
-                <h3 className="font-semibold mb-4">Map Usage Tips</h3>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-start gap-2">
-                    <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <span>Click on any point to see detailed health data</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Layers className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <span>Toggle between different health metrics using the layer controls</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Expand className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <span>Use fullscreen mode for a more immersive experience</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <Search className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <span>Try the search feature to find specific locations</span>
-                  </li>
-                </ul>
-              </Card>
-            </div>
-          )}
         </div>
       </div>
     </MainLayout>
