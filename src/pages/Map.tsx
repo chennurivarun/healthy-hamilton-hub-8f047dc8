@@ -1,3 +1,4 @@
+
 import { useEffect, useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import MainLayout from "@/components/layout/MainLayout";
@@ -194,7 +195,8 @@ const Map = () => {
     if (!map.current) return;
     
     if (isEnabled) {
-      map.current.on('click', (e) => {
+      // This is where the error was - we need to provide both event type and handler function
+      map.current.on('click', function(e) {
         if (!map.current) return;
         const coords = e.lngLat;
         
@@ -270,6 +272,7 @@ const Map = () => {
         description: "Click anywhere on the map to see reachable areas",
       });
     } else {
+      // We need to provide the same handler function signature to remove the event
       map.current.off('click');
       
       if (map.current.getLayer('isochrone-fill')) {
