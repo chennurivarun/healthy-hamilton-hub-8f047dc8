@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import { Card } from "@/components/ui/card";
 import MainLayout from "@/components/layout/MainLayout";
@@ -30,7 +29,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// Define available map features
 const mapFeatures = {
   healthScores: {
     id: 'healthScores',
@@ -62,7 +60,6 @@ const mapFeatures = {
   }
 };
 
-// Define advanced feature categories
 const advancedFeatures = [
   {
     id: 'search',
@@ -113,17 +110,14 @@ const Map = () => {
     datasets: false
   });
   
-  // Geocoder ref for search functionality
   const geocoder = useRef<any>(null);
   
-  // Save token to localStorage whenever it changes
   useEffect(() => {
     if (mapToken) {
       localStorage.setItem("mapbox_token", mapToken);
     }
   }, [mapToken]);
 
-  // Track theme changes
   useEffect(() => {
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
@@ -145,7 +139,6 @@ const Map = () => {
     return () => observer.disconnect();
   }, []);
 
-  // Toggle fullscreen mode
   const toggleFullscreen = () => {
     setIsFullscreen(!isFullscreen);
     setTimeout(() => {
@@ -155,21 +148,17 @@ const Map = () => {
     }, 100);
   };
 
-  // Function to add geocoder search
   const addGeocoder = () => {
     if (!map.current || !mapboxgl.accessToken) return;
     
     try {
-      // Use dynamic import to avoid bundling issues
       import('@mapbox/mapbox-gl-geocoder').then(({ default: MapboxGeocoder }) => {
         if (!map.current) return;
         
-        // Remove existing geocoder if any
         if (geocoder.current) {
           map.current.removeControl(geocoder.current);
         }
         
-        // Create new geocoder
         geocoder.current = new MapboxGeocoder({
           accessToken: mapboxgl.accessToken,
           mapboxgl: mapboxgl,
@@ -179,7 +168,6 @@ const Map = () => {
           placeholder: 'Search for locations'
         });
         
-        // Add geocoder to map
         map.current.addControl(geocoder.current, 'top-left');
         
         toast({
@@ -198,8 +186,7 @@ const Map = () => {
       console.error("Error setting up geocoder:", error);
     }
   };
-  
-  // Function to enable/disable isochrone feature
+
   const toggleIsochrone = () => {
     const isEnabled = !advancedFeatureStatus.isochrone;
     setAdvancedFeatureStatus({...advancedFeatureStatus, isochrone: isEnabled});
@@ -207,8 +194,7 @@ const Map = () => {
     if (!map.current) return;
     
     if (isEnabled) {
-      // Set up click listener for isochrone generation
-      map.current.on('click', 'isochrone-click', (e) => {
+      map.current.on('click', (e) => {
         if (!map.current) return;
         const coords = e.lngLat;
         
@@ -217,20 +203,17 @@ const Map = () => {
           description: "Calculating areas within 15 minutes...",
         });
         
-        // Simulate isochrone calculation (in a real app, this would call the Mapbox Isochrone API)
         setTimeout(() => {
           if (!map.current) return;
           
-          // Generate a simple circle as a placeholder for isochrone
           const center = [coords.lng, coords.lat];
-          const radius = 0.02; // Roughly 2km
+          const radius = 0.02;
           const options = { steps: 50, units: 'kilometers' as const };
           
           try {
             import('@turf/turf').then((turf) => {
               const circle = turf.circle(center, radius, options);
               
-              // Add source if it doesn't exist
               if (!map.current?.getSource('isochrone')) {
                 map.current?.addSource('isochrone', {
                   type: 'geojson',
@@ -240,7 +223,6 @@ const Map = () => {
                   }
                 });
                 
-                // Add fill layer
                 map.current?.addLayer({
                   id: 'isochrone-fill',
                   type: 'fill',
@@ -251,7 +233,6 @@ const Map = () => {
                   }
                 });
                 
-                // Add outline layer
                 map.current?.addLayer({
                   id: 'isochrone-outline',
                   type: 'line',
@@ -262,7 +243,6 @@ const Map = () => {
                   }
                 });
               } else {
-                // Update existing source
                 (map.current?.getSource('isochrone') as mapboxgl.GeoJSONSource).setData({
                   type: 'FeatureCollection',
                   features: [circle]
@@ -290,8 +270,7 @@ const Map = () => {
         description: "Click anywhere on the map to see reachable areas",
       });
     } else {
-      // Remove isochrone layers and listener
-      map.current.off('click', 'isochrone-click');
+      map.current.off('click');
       
       if (map.current.getLayer('isochrone-fill')) {
         map.current.removeLayer('isochrone-fill');
@@ -311,8 +290,7 @@ const Map = () => {
       });
     }
   };
-  
-  // Toggle directions feature
+
   const toggleDirections = () => {
     const isEnabled = !advancedFeatureStatus.directions;
     setAdvancedFeatureStatus({...advancedFeatureStatus, directions: isEnabled});
@@ -321,11 +299,9 @@ const Map = () => {
     
     if (isEnabled) {
       try {
-        // Use dynamic import for Directions control
         import('@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions').then(({ default: MapboxDirections }) => {
           if (!map.current) return;
           
-          // Add directions control
           const directionsControl = new MapboxDirections({
             accessToken: mapboxgl.accessToken,
             unit: 'metric',
@@ -340,7 +316,6 @@ const Map = () => {
           
           map.current.addControl(directionsControl, 'top-left');
           
-          // Store the control for later removal
           (map.current as any)._directionsControl = directionsControl;
           
           toast({
@@ -361,7 +336,6 @@ const Map = () => {
         setAdvancedFeatureStatus({...advancedFeatureStatus, directions: false});
       }
     } else {
-      // Remove directions control if it exists
       if (map.current && (map.current as any)._directionsControl) {
         map.current.removeControl((map.current as any)._directionsControl);
         (map.current as any)._directionsControl = null;
@@ -373,8 +347,7 @@ const Map = () => {
       }
     }
   };
-  
-  // Toggle custom datasets feature
+
   const toggleDatasets = () => {
     const isEnabled = !advancedFeatureStatus.datasets;
     setAdvancedFeatureStatus({...advancedFeatureStatus, datasets: isEnabled});
@@ -392,23 +365,18 @@ const Map = () => {
     }
   };
 
-  // Initialize map when token is available
   useEffect(() => {
-    console.log("Map initialization effect running, token:", mapToken ? "exists" : "missing");
-    
     if (!mapToken || !mapContainer.current) {
       console.log("Map cannot initialize: token or container missing");
       return;
     }
     
-    // Don't re-initialize if map already exists
     if (map.current) {
       console.log("Map already exists, skipping initialization");
       return;
     }
 
     try {
-      console.log("Starting map initialization with token");
       mapboxgl.accessToken = mapToken;
       
       console.log("Creating map instance");
@@ -417,14 +385,13 @@ const Map = () => {
         style: isDarkMode ? 
           'mapbox://styles/mapbox/dark-v11' : 
           'mapbox://styles/mapbox/light-v11',
-        center: [-79.8711, 43.2557], // Hamilton, Ontario coordinates
+        center: [-79.8711, 43.2557],
         zoom: 12,
         pitch: 35,
-        preserveDrawingBuffer: true, // Helps with performance
+        preserveDrawingBuffer: true,
       });
 
       console.log("Adding navigation controls");
-      // Add navigation controls
       map.current.addControl(
         new mapboxgl.NavigationControl({
           visualizePitch: true,
@@ -433,7 +400,6 @@ const Map = () => {
       );
 
       console.log("Setting up map load handler");
-      // When map loads, add data layers
       map.current.on('load', () => {
         console.log("Map loaded successfully");
         setMapInitialized(true);
@@ -443,13 +409,11 @@ const Map = () => {
         });
         
         console.log("Adding health data source");
-        // Add dummy health data for demonstration
         map.current.addSource('health-data', {
           type: 'geojson',
           data: {
             type: 'FeatureCollection',
             features: [
-              // Downtown Hamilton
               {
                 type: 'Feature',
                 properties: { 
@@ -464,7 +428,6 @@ const Map = () => {
                   coordinates: [-79.866, 43.256]
                 }
               },
-              // East Hamilton
               {
                 type: 'Feature',
                 properties: { 
@@ -479,7 +442,6 @@ const Map = () => {
                   coordinates: [-79.82, 43.24]
                 }
               },
-              // West Hamilton
               {
                 type: 'Feature',
                 properties: { 
@@ -494,7 +456,6 @@ const Map = () => {
                   coordinates: [-79.91, 43.26]
                 }
               },
-              // Mountain Area
               {
                 type: 'Feature',
                 properties: { 
@@ -509,7 +470,6 @@ const Map = () => {
                   coordinates: [-79.85, 43.21]
                 }
               },
-              // Stoney Creek
               {
                 type: 'Feature',
                 properties: { 
@@ -529,7 +489,6 @@ const Map = () => {
         });
         
         console.log("Adding map layers");
-        // Add health scores layer with updated colors for dark mode
         map.current.addLayer({
           id: 'healthScores',
           type: 'circle',
@@ -543,11 +502,10 @@ const Map = () => {
             'circle-color': mapFeatures.healthScores.color,
             'circle-opacity': 0.8,
             'circle-stroke-width': 2,
-            'circle-stroke-color': isDarkMode ? '#1A1F2C' : '#ffffff' // Theme-based outline
+            'circle-stroke-color': isDarkMode ? '#1A1F2C' : '#ffffff'
           }
         });
         
-        // Add diabetes layer with updated colors for dark mode
         map.current.addLayer({
           id: 'diabetesRates',
           type: 'circle',
@@ -561,14 +519,13 @@ const Map = () => {
             'circle-color': mapFeatures.diabetesRates.color,
             'circle-opacity': 0.8,
             'circle-stroke-width': 2,
-            'circle-stroke-color': isDarkMode ? '#1A1F2C' : '#ffffff' // Theme-based outline
+            'circle-stroke-color': isDarkMode ? '#1A1F2C' : '#ffffff'
           },
           layout: {
             'visibility': 'none'
           }
         });
         
-        // Add mental health layer with updated colors for dark mode
         map.current.addLayer({
           id: 'mentalHealth',
           type: 'circle',
@@ -582,14 +539,13 @@ const Map = () => {
             'circle-color': mapFeatures.mentalHealth.color,
             'circle-opacity': 0.8,
             'circle-stroke-width': 2,
-            'circle-stroke-color': isDarkMode ? '#1A1F2C' : '#ffffff' // Theme-based outline
+            'circle-stroke-color': isDarkMode ? '#1A1F2C' : '#ffffff'
           },
           layout: {
             'visibility': 'none'
           }
         });
         
-        // Add air quality layer with updated colors for dark mode
         map.current.addLayer({
           id: 'airQuality',
           type: 'circle',
@@ -603,14 +559,13 @@ const Map = () => {
             'circle-color': mapFeatures.airQuality.color,
             'circle-opacity': 0.8,
             'circle-stroke-width': 2,
-            'circle-stroke-color': isDarkMode ? '#1A1F2C' : '#ffffff' // Theme-based outline
+            'circle-stroke-color': isDarkMode ? '#1A1F2C' : '#ffffff'
           },
           layout: {
             'visibility': 'none'
           }
         });
         
-        // Add dummy layer for isochrone click detection
         map.current.addLayer({
           id: 'isochrone-click',
           type: 'circle',
@@ -628,7 +583,6 @@ const Map = () => {
         });
         
         console.log("Setting up click handlers");
-        // Add popups with improved styling
         const setupClickHandlers = (layerId: string) => {
           map.current?.on('click', layerId, (e) => {
             showPopup(e);
@@ -643,14 +597,11 @@ const Map = () => {
           });
         };
         
-        // Apply click handlers to all layers
         setupClickHandlers('healthScores');
         setupClickHandlers('diabetesRates');
         setupClickHandlers('mentalHealth');
         setupClickHandlers('airQuality');
       });
-
-      console.log("Map initialization complete");
     } catch (error) {
       console.error("Error initializing map:", error);
       toast({
@@ -661,7 +612,6 @@ const Map = () => {
     }
 
     return () => {
-      console.log("Cleaning up map");
       if (map.current) {
         map.current.remove();
         map.current = null;
@@ -669,14 +619,12 @@ const Map = () => {
     };
   }, [mapToken, isDarkMode]);
 
-  // Function to show popup with health data
   const showPopup = (e: mapboxgl.MapMouseEvent & { features?: mapboxgl.MapboxGeoJSONFeature[] }) => {
     if (!map.current || !e.features || e.features.length === 0) return;
     
     const coordinates = (e.features[0].geometry as any).coordinates.slice();
     const properties = e.features[0].properties;
     
-    // Create popup content with theme-sensitive styling
     const popupContent = document.createElement('div');
     popupContent.className = 'p-2 text-sm rounded-md';
     popupContent.innerHTML = `
@@ -689,7 +637,6 @@ const Map = () => {
       </div>
     `;
     
-    // Create and display popup with appropriate theme class
     new mapboxgl.Popup({
       className: isDarkMode ? 'dark-map-popup' : 'light-map-popup',
       closeButton: true,
@@ -701,16 +648,13 @@ const Map = () => {
       .addTo(map.current);
   };
 
-  // Handle layer toggling
   const toggleLayer = (layerId: string) => {
     if (!map.current || !mapInitialized) return;
     
-    // Hide all layers first
     Object.keys(mapFeatures).forEach(id => {
       map.current?.setLayoutProperty(id, 'visibility', 'none');
     });
     
-    // Show selected layer
     map.current.setLayoutProperty(layerId, 'visibility', 'visible');
     setActiveLayer(layerId);
     
@@ -720,7 +664,6 @@ const Map = () => {
     });
   };
 
-  // Toggle a specific advanced feature
   const toggleAdvancedFeature = (featureId: string) => {
     switch (featureId) {
       case 'search':
@@ -728,7 +671,6 @@ const Map = () => {
         if (!advancedFeatureStatus.search) {
           addGeocoder();
         } else {
-          // Remove geocoder
           if (map.current && geocoder.current) {
             map.current.removeControl(geocoder.current);
             geocoder.current = null;
@@ -751,13 +693,11 @@ const Map = () => {
     }
   };
 
-  // Function to render map controls
   const renderMapControls = () => {
     if (!mapInitialized) return null;
     
     return (
       <div className={cn("map-controls", isFullscreen && "pt-12")}>
-        {/* Layers Panel */}
         <div className="map-layer-panel">
           <div className="panel-header">
             <h3 className="text-sm font-medium">Map Layers</h3>
@@ -791,7 +731,6 @@ const Map = () => {
           )}
         </div>
         
-        {/* Advanced Features Panel */}
         <div className="map-layer-panel">
           <div className="panel-header">
             <h3 className="text-sm font-medium">Advanced Features</h3>
@@ -843,7 +782,6 @@ const Map = () => {
           </p>
         </div>
 
-        {/* Map container with fullscreen capability */}
         <div className={cn(
           "relative",
           isFullscreen ? "map-fullscreen z-50" : "grid grid-cols-1 gap-4 lg:grid-cols-[1fr_300px]"
@@ -853,7 +791,6 @@ const Map = () => {
             "glass",
             isFullscreen && "h-screen rounded-none"
           )}>
-            {/* Fullscreen button */}
             <div className="absolute top-2 right-2 z-30 gap-2 flex">
               <TooltipProvider>
                 <Tooltip delayDuration={0}>
@@ -923,9 +860,9 @@ const Map = () => {
                     }
                     setMapInitialized(false);
                     if (mapToken) {
-                      localStorage.setItem("mapbox_token", mapToken); // Ensure token is saved
-                      setMapToken(""); // Temporarily clear to trigger useEffect
-                      setTimeout(() => setMapToken(mapToken), 0); // Re-set token to trigger map init
+                      localStorage.setItem("mapbox_token", mapToken);
+                      setMapToken("");
+                      setTimeout(() => setMapToken(mapToken), 0);
                     }
                   }}>
                     Load Map
